@@ -53,8 +53,8 @@ Material:
     m_Colors:
     - _AdditiveColor: {r: 0, g: 0, b: 0, a: 0}
     - _BlurOffset: {r: 1, g: 1, b: 0, a: 1}
-    - _CenterColor: {r: 0.14219607, g: 0.40966, b: 0.518, a: 1}
-    - _EdgesColor: {r: 0.8679245, g: 0.6070548, b: 0, a: 1}
+    - _CenterColor: {r: 0.11658947, g: 0.3363158, b: 0.426, a: 1}
+    - _EdgesColor: {r: 0.043137256, g: 0.19215688, b: 0.25490198, a: 0.9921889}
   m_BuildTextureStacks: []
 --- !u!114 &4781603669516515207
 MonoBehaviour:
