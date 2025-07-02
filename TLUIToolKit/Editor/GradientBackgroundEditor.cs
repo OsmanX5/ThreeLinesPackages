@@ -6,7 +6,7 @@ namespace TLUIToolkit.Editor
 {
     public class GradientBackgroundEditor
     {
-        private const string DEFAULT_MATERIAL_PATH = "Assets/_ThreeLinesPackages_/TLUIToolKit/Runtime/GraidentBackground/Default_SH_GradientBackground_Blue.mat";
+        private const string DEFAULT_MATERIAL_PATH = "Materials/Default_SH_GradientBackground_Blue";
 
         [MenuItem("GameObject/ThreeLinesUI/UIToolkit/Create Gradient Background Image", false, 10)]
         public static void CreateGradientBackgroundImage()
@@ -22,7 +22,7 @@ namespace TLUIToolkit.Editor
             rectTransform.sizeDelta = new Vector2(100f, 100f);
 
             // Load the default material
-            Material defaultMaterial = AssetDatabase.LoadAssetAtPath<Material>(DEFAULT_MATERIAL_PATH);
+            Material defaultMaterial = Resources.Load<Material>(DEFAULT_MATERIAL_PATH);
 
             if (defaultMaterial != null)
             {

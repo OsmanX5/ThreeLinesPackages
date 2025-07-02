@@ -61,7 +61,8 @@ namespace TLUIToolkit
                 Data.State.Failed => FailureColor,
                 _ => notStartedColor
             };
-            if(newState != lastState)
+            lastLineFill.fillAmount = 0;
+            if (newState != lastState)
             {
                 FillAnimation(newState);
                 lastState = newState;

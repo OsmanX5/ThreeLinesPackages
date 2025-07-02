@@ -5,7 +5,7 @@ namespace ThreeLinesUI.UIToolkit.Editor
 {
     public static class TasksCheckUIEditor
     {
-        private const string PREFAB_PATH = "Assets/_ThreeLinesPackages_/TLUIToolKit/Runtime/TasksCheckUI/Prefabs/TasksCheckUI.prefab";
+        private const string PREFAB_RESOURCES_PATH = "Prefabs/TasksCheckUI";
         private const string MENU_PATH = "GameObject/ThreeLinesUI/UIToolkit/TasksCheckUI";
         private const int MENU_PRIORITY = 0;
 
@@ -25,13 +25,13 @@ namespace ThreeLinesUI.UIToolkit.Editor
         private static void CreateTasksCheckUIPrefab()
         {
             // Load the prefab from the specified path
-            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PREFAB_PATH);
+            GameObject prefab = Resources.Load<GameObject>(PREFAB_RESOURCES_PATH);
 
             if (prefab == null)
             {
-                Debug.LogError($"TasksCheckUI prefab not found at path: {PREFAB_PATH}");
+                Debug.LogError($"TasksCheckUI prefab not found at path: {PREFAB_RESOURCES_PATH}");
                 EditorUtility.DisplayDialog("Error",
-                    $"Could not find TasksCheckUI prefab at:\n{PREFAB_PATH}\n\nPlease ensure the prefab exists at this location.",
+                    $"Could not find TasksCheckUI prefab at:\n{PREFAB_RESOURCES_PATH}\n\nPlease ensure the prefab exists at this location.",
                     "OK");
                 return;
             }
