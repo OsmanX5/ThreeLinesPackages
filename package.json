@@ -1,7 +1,7 @@
 {
     "name": "com.threelines.packages",
     "version": "1.0.0",
-    "displayName": "My Unity Package",
+    "displayName": "Three Lines Packages",
     "description": "A useful Unity package",
     "unity": "2022.3",
     "author": {
