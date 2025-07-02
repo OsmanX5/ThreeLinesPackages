@@ -1,0 +1,12 @@
+{
+    "name": "com.ThreeLines.ThreeLinesPackages",
+    "version": "1.0.0",
+    "displayName": "My Unity Package",
+    "description": "A useful Unity package",
+    "unity": "2022.3",
+    "author": {
+        "name": "3LinesTeam",
+        "email": "xr@3lines.com.sa",
+        "url": "https://xr@3lines.com.sa"
+    }
+}
