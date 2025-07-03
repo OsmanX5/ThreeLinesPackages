@@ -74,14 +74,14 @@ namespace TLUIToolkit
         {
             UpdateState(newState);
         }
-        #endregion
-
-        #region Private Methods
-        private void UpdateTextContent(TaskUIData data)
+        public void UpdateTextContent(TaskUIData data)
         {
             if (mainText != null) mainText.text = data.MainText;
             if (subText != null) subText.text = data.SubText;
         }
+        #endregion
+
+        #region Private Methods
 
         private void SetLastLineVisibility(bool isVisible)
         {
