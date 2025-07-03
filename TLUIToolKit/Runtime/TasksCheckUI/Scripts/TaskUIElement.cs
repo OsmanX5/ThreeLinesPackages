@@ -1,163 +1,318 @@
 using Sirenix.OdinInspector;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-
+using TMPro;
 
 namespace TLUIToolkit
 {
+    /// <summary>
+    /// UI element for displaying task progress with visual states and animations
+    /// </summary>
     public class TaskUIElement : MonoBehaviour
     {
-        [SerializeField]
-        TMP_Text mainText;
+        #region Events
+        public event Action<TaskUIData.State> OnStateChanged;
+        public event Action OnStateFillAnimationStarted;
+        public event Action OnStateFillAnimationCompleted;
+        #endregion
 
-        [SerializeField]
-        TMP_Text subText;
+        #region Serialized Fields
+        [Header("Text Components")]
+        [SerializeField, Required] private TMP_Text mainText;
+        [SerializeField, Required] private TMP_Text subText;
 
-        [SerializeField]
-        GameObject notStartedView,
-            failerView,
-            inProgressView,
-            completedView;
+        [Header("State Views")]
+        [SerializeField, Required] private GameObject notStartedView;
+        [SerializeField, Required] private GameObject inProgressView;
+        [SerializeField, Required] private GameObject completedView;
+        [SerializeField, Required] private GameObject failedView;
 
+        [Header("Progress Line")]
+        [SerializeField, Required] private GameObject lastLine;
+        [SerializeField, Required] private Image lastLineFill;
 
-        [SerializeField]
-        GameObject lastLine;
+        [Header("State Colors")]
+        [SerializeField] private Color successColor = Color.green;
+        [SerializeField] private Color failureColor = Color.red;
+        [SerializeField] private Color inProgressColor = Color.yellow;
+        [SerializeField] private Color notStartedColor = Color.white;
+        #endregion
 
-        [SerializeField]
-        Image lastLineFill;
+        #region Private Fields
+        private TaskUIData.State lastState;
+        private bool isFilling = false;
+        private Coroutine fillCoroutine;
 
-        [SerializeField]
-        Color SuccessColor;
-        [SerializeField]
-        Color FailureColor;
-        [SerializeField]
-        Color InProgressColor;
-        [SerializeField]
-        Color notStartedColor = Color.white;
+        // Animation configuration
+        private const float FILL_DURATION = 0.5f;
+        #endregion
 
-        Data.State lastState;
-        bool isFilling = false;
-        Coroutine fillCoroutine;
-        const float FILL_DURATION = 0.5f;
-        public void SetData(Data data)
+        #region Public Methods
+        /// <summary>
+        /// Sets the task data and updates the UI accordingly
+        /// </summary>
+        /// <param name="data">Task data to display</param>
+        public void SetData(TaskUIData data)
         {
-            mainText.text = data.MainText;
-            subText.text = data.SubText;
-            UpdateState(data.CurrentState);
-            lastLine.gameObject.SetActive(!data.IsLast);
-        }
-
-        private void UpdateState(Data.State newState)
-        {
-            Debug.Log($"Updating {mainText.text} to {newState}");
-            notStartedView.SetActive(newState == Data.State.NotStarted);
-            inProgressView.SetActive(newState == Data.State.InProgress);
-            completedView.SetActive(newState == Data.State.Completed);
-            failerView.SetActive(newState == Data.State.Failed);
-            mainText.color = newState switch
+            if (data == null)
             {
-                Data.State.Completed => SuccessColor,
-                Data.State.InProgress => InProgressColor,
-                Data.State.Failed => FailureColor,
-                _ => notStartedColor
-            };
-            lastLineFill.fillAmount = 0;
-            if (newState != lastState)
-            {
-                FillAnimation(newState);
-                lastState = newState;
-            }
-        }
-
-        private void FillAnimation(Data.State currentState)
-        {
-            Debug.Log($"Filling animation for {mainText.text} with state {currentState}");
-            if (lastLineFill == null)
-            {
-                Debug.LogWarning("Last Line Fill is not assigned in TaskUIElement");
+                Debug.LogError("TaskUIData is null", this);
                 return;
             }
-            lastLineFill.color = currentState switch
+
+            UpdateTextContent(data);
+            UpdateState(data.CurrentState);
+            SetLastLineVisibility(!data.IsLast);
+        }
+
+        /// <summary>
+        /// Updates only the state without changing text content
+        /// </summary>
+        /// <param name="newState">New state to set</param>
+        public void UpdateTaskState(TaskUIData.State newState)
+        {
+            UpdateState(newState);
+        }
+        #endregion
+
+        #region Private Methods
+        private void UpdateTextContent(TaskUIData data)
+        {
+            if (mainText != null) mainText.text = data.MainText;
+            if (subText != null) subText.text = data.SubText;
+        }
+
+        private void SetLastLineVisibility(bool isVisible)
+        {
+            if (lastLine != null)
+                lastLine.SetActive(isVisible);
+        }
+
+        private void UpdateState(TaskUIData.State newState)
+        {
+            if (newState == lastState) return;
+
+            Debug.Log($"Updating {GetDisplayName()} to {newState}");
+
+            UpdateStateViews(newState);
+            UpdateTextColor(newState);
+            ResetFillAmount();
+
+            OnStateChanged?.Invoke(newState);
+            StartFillAnimation(newState);
+
+            lastState = newState;
+        }
+
+        private void UpdateStateViews(TaskUIData.State state)
+        {
+            SetViewState(notStartedView, state == TaskUIData.State.NotStarted);
+            SetViewState(inProgressView, state == TaskUIData.State.InProgress);
+            SetViewState(completedView, state == TaskUIData.State.Completed);
+            SetViewState(failedView, state == TaskUIData.State.Failed);
+        }
+
+        private void SetViewState(GameObject view, bool isActive)
+        {
+            if (view != null)
+                view.SetActive(isActive);
+        }
+
+        private void UpdateTextColor(TaskUIData.State state)
+        {
+            if (mainText == null) return;
+
+            mainText.color = state switch
             {
-                Data.State.Completed => SuccessColor,
-                Data.State.Failed => FailureColor,
+                TaskUIData.State.Completed => successColor,
+                TaskUIData.State.InProgress => inProgressColor,
+                TaskUIData.State.Failed => failureColor,
                 _ => notStartedColor
             };
+        }
 
-            if (currentState != Data.State.NotStarted)
-            {
+        private void ResetFillAmount()
+        {
+            if (lastLineFill != null)
                 lastLineFill.fillAmount = 0;
-                KillOldFillingProccess();
-                fillCoroutine = StartCoroutine(fillProccess(FILL_DURATION, 1f));
-            }
-            else
+        }
+
+        private void StartFillAnimation(TaskUIData.State currentState)
+        {
+            if (!ValidateFillComponents()) return;
+
+            Debug.Log($"Starting fill animation for {GetDisplayName()} with state {currentState}");
+
+            UpdateFillColor(currentState);
+            StopCurrentFillAnimation();
+
+            var (targetFill, startFill) = GetFillParameters(currentState);
+            lastLineFill.fillAmount = startFill;
+
+            fillCoroutine = StartCoroutine(FillAnimationCoroutine(FILL_DURATION, targetFill));
+        }
+
+        private bool ValidateFillComponents()
+        {
+            if (lastLineFill == null)
             {
-                lastLineFill.fillAmount = 1f;
-                KillOldFillingProccess();
-                fillCoroutine = StartCoroutine(fillProccess(FILL_DURATION, 0f));
+                Debug.LogWarning("Last Line Fill is not assigned in TaskUIElement", this);
+                return false;
+            }
+            return true;
+        }
+
+        private void UpdateFillColor(TaskUIData.State state)
+        {
+            lastLineFill.color = state switch
+            {
+                TaskUIData.State.Completed => successColor,
+                TaskUIData.State.Failed => failureColor,
+                _ => notStartedColor
+            };
+        }
+
+        private (float targetFill, float startFill) GetFillParameters(TaskUIData.State state)
+        {
+            return state switch
+            {
+                TaskUIData.State.NotStarted => (0f, 1f),
+                _ => (1f, 0f)
+            };
+        }
+
+        private void StopCurrentFillAnimation()
+        {
+            if (isFilling && fillCoroutine != null)
+            {
+                StopCoroutine(fillCoroutine);
+                isFilling = false;
             }
         }
 
-        IEnumerator fillProccess(float duration, float targetFill)
+        private string GetDisplayName()
         {
-            Debug.Log($"Starting fill process for {mainText.text} with target fill {targetFill}");
+            return mainText != null ? mainText.text : gameObject.name;
+        }
+        #endregion
+
+        #region Coroutines
+        private IEnumerator FillAnimationCoroutine(float duration, float targetFill)
+        {
+            OnStateFillAnimationStarted?.Invoke();
+            Debug.Log($"Starting fill process for {GetDisplayName()} with target fill {targetFill}");
+
             isFilling = true;
             float elapsedTime = 0f;
             float initialFill = lastLineFill.fillAmount;
+
             while (elapsedTime < duration)
             {
                 elapsedTime += Time.deltaTime;
-                float fillAmount = Mathf.Lerp(initialFill, targetFill, elapsedTime / duration);
+                float t = elapsedTime / duration;
+                float fillAmount = Mathf.Lerp(initialFill, targetFill, t);
                 lastLineFill.fillAmount = fillAmount;
                 yield return null;
             }
+
+            // Ensure final value is set
             lastLineFill.fillAmount = targetFill;
             isFilling = false;
-            Debug.Log($"Fill process completed for {mainText.text} with final fill {lastLineFill.fillAmount}");
+
+            Debug.Log($"Fill process completed for {GetDisplayName()} with final fill {lastLineFill.fillAmount}");
+            OnStateFillAnimationCompleted?.Invoke();
         }
+        #endregion
+
+        #region Unity Lifecycle
         private void OnDisable()
         {
-            KillOldFillingProccess();
+            StopCurrentFillAnimation();
         }
 
-        private void KillOldFillingProccess()
+        private void OnDestroy()
         {
-            if (isFilling)
-                StopCoroutine(fillCoroutine);
+            StopCurrentFillAnimation();
         }
+        #endregion
+
+        #region Editor Tools
 #if UNITY_EDITOR
-        [Button]
-        public void UnitTest(string mainText, string subText, Data.State state, bool isLast)
+        [Button("Test Task UI")]
+        [PropertySpace(10)]
+        public void UnitTest(string mainText, string subText, TaskUIData.State state, bool isLast)
         {
-            this.mainText.text = mainText;
-            this.subText.text = subText;
-            SetData(new Data { MainText = mainText, SubText = subText, CurrentState = state, IsLast = isLast });
-        }
-#endif
-        [Serializable]
-        public class Data
-        {
-            [field: SerializeField]
-            public string MainText { get; set; }
-            [field: SerializeField]
-            public string SubText { get; set; }
-            [field: SerializeField]
-            public State CurrentState { get; set; }
-            public bool IsLast { get; set; } = false;
-            public enum State
+            var testData = new TaskUIData
             {
-                NotStarted,
-                InProgress,
-                Completed,
-                Failed
+                MainText = mainText,
+                SubText = subText,
+                CurrentState = state,
+                IsLast = isLast
+            };
+
+            SetData(testData);
+        }
+
+        [Button("Test All States")]
+        public void TestAllStates()
+        {
+            StartCoroutine(TestAllStatesCoroutine());
+        }
+
+        private IEnumerator TestAllStatesCoroutine()
+        {
+            var states = (TaskUIData.State[])Enum.GetValues(typeof(TaskUIData.State));
+            foreach (var state in states)
+            {
+                UnitTest("Test Task", $"Testing {state}", state, false);
+                yield return new WaitForSeconds(1f);
             }
         }
-
+#endif
+        #endregion
     }
 
-}
+    /// <summary>
+    /// Data structure for task information
+    /// </summary>
+    [Serializable]
+    public class TaskUIData
+    {
+        [field: SerializeField]
+        public string MainText { get; set; } = string.Empty;
 
+        [field: SerializeField]
+        public string SubText { get; set; } = string.Empty;
+
+        [field: SerializeField]
+        public State CurrentState { get; set; } = State.NotStarted;
+
+        public bool IsLast { get; set; } = false;
+
+        public enum State
+        {
+            NotStarted,
+            InProgress,
+            Completed,
+            Failed
+        }
+
+        /// <summary>
+        /// Creates a new TaskUIData instance
+        /// </summary>
+        public TaskUIData() { }
+
+        /// <summary>
+        /// Creates a new TaskUIData instance with specified values
+        /// </summary>
+        public TaskUIData(string mainText, string subText, State state = State.NotStarted, bool isLast = false)
+        {
+            MainText = mainText;
+            SubText = subText;
+            CurrentState = state;
+            IsLast = isLast;
+        }
+    }
+}

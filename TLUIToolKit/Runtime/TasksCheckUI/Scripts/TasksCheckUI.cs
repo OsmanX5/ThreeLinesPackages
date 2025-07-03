@@ -6,67 +6,116 @@ using UnityEngine;
 
 namespace TLUIToolkit
 {
+    /// <summary>
+    /// Simple UI controller for managing multiple task UI elements
+    /// </summary>
     public class TasksCheckUI : MonoBehaviour
     {
+        #region Events
+        public event Action<int, TaskUIData.State> OnTaskStateChanged;
+        public event Action<int> OnTaskAdded;
+        public event Action OnTasksCleared;
+        public event Action OnTasksInitialized;
+        #endregion
 
-        [SerializeField]
-        Transform tasksListParent;
+        #region Serialized Fields
+        [SerializeField] private Transform tasksListParent;
+        [SerializeField, AssetsOnly] private GameObject taskUIElementPrefab;
+        [SerializeField] private List<TaskUIData> taskUIElements = new();
+        #endregion
 
-        [SerializeField]
-        [AssetsOnly]
-        GameObject taskUIElementPrefab;
-
-        [SerializeField]
-        List<TaskUIElement.Data> taskUIElements = new ();
-
-
-        [Button]
-        void CreateTasksUI()
-        {
-            DestroyAllChildrens();
-            for (int i = 0; i < taskUIElements.Count; i++)
-            {
-                TaskUIElement.Data taskData = taskUIElements[i];
-                var taskUIElement = Instantiate(taskUIElementPrefab, tasksListParent);
-                var taskUI = taskUIElement.GetComponent<TaskUIElement>();
-                taskData.IsLast = i == taskUIElements.Count - 1; // Set last element
-                if (taskUI != null)
-                {
-                    taskUI.SetData(taskData);
-                }
-            }
-        }
-        public void InitWithTasks(List<TaskUIElement.Data> tasksData)
+        #region Public Methods
+        public void InitWithTasks(List<TaskUIData> tasksData)
         {
             ClearTasks();
             taskUIElements = tasksData;
             CreateTasksUI();
+            OnTasksInitialized?.Invoke();
         }
+
         public void ClearTasks()
         {
             taskUIElements.Clear();
-            DestroyAllChildrens();
+            DestroyAllChildren();
+            OnTasksCleared?.Invoke();
         }
-        public void AddTask(TaskUIElement.Data taskData)
+
+        public void AddTask(TaskUIData taskData)
         {
-            taskData.IsLast = taskUIElements.Count == 0; // Set last element if it's the first task
+            // Update previous last task
+            if (taskUIElements.Count > 0)
+            {
+                taskUIElements[taskUIElements.Count - 1].IsLast = false;
+            }
+
+            taskData.IsLast = true; // New task is now the last
             taskUIElements.Add(taskData);
+
             var taskUIElement = Instantiate(taskUIElementPrefab, tasksListParent);
             var taskUI = taskUIElement.GetComponent<TaskUIElement>();
             if (taskUI != null)
             {
                 taskUI.SetData(taskData);
             }
+
+            // Refresh previous task to remove last line
+            if (taskUIElements.Count > 1)
+            {
+                RefreshTaskUI(taskUIElements.Count - 2);
+            }
+
+            OnTaskAdded?.Invoke(taskUIElements.Count - 1);
         }
+
         [Button]
-        public void UpdateTaskState(int index, TaskUIElement.Data.State newState)
+        public void UpdateTaskState(int index, TaskUIData.State newState)
         {
             if (index < 0 || index >= taskUIElements.Count)
             {
                 Debug.LogError("Index out of range");
                 return;
             }
+
+            var oldState = taskUIElements[index].CurrentState;
             taskUIElements[index].CurrentState = newState;
+
+            Transform child = tasksListParent.GetChild(index);
+            TaskUIElement taskUI = child.GetComponent<TaskUIElement>();
+            if (taskUI != null)
+            {
+                taskUI.SetData(taskUIElements[index]);
+            }
+
+            OnTaskStateChanged?.Invoke(index, newState);
+        }
+        #endregion
+
+        #region Private Methods
+        [Button]
+        private void CreateTasksUI()
+        {
+            DestroyAllChildren();
+
+            for (int i = 0; i < taskUIElements.Count; i++)
+            {
+                TaskUIData taskData = taskUIElements[i];
+                taskData.CurrentState = TaskUIData.State.NotStarted; // Reset state for new UI
+                var taskUIElement = Instantiate(taskUIElementPrefab, tasksListParent);
+                var taskUI = taskUIElement.GetComponent<TaskUIElement>();
+                taskData.IsLast = i == taskUIElements.Count - 1; // Set last element
+
+                if (taskUI != null)
+                {
+                    taskUI.SetData(taskData);
+                }
+            }
+        }
+
+        private void RefreshTaskUI(int index)
+        {
+            if (index < 0 || index >= taskUIElements.Count || index >= tasksListParent.childCount)
+                return;
+
             Transform child = tasksListParent.GetChild(index);
             TaskUIElement taskUI = child.GetComponent<TaskUIElement>();
             if (taskUI != null)
@@ -75,28 +124,72 @@ namespace TLUIToolkit
             }
         }
 
-        public void DestroyAllChildrens()
+        private void DestroyAllChildren()
         {
             int childCount = tasksListParent.childCount;
+
             if (Application.isPlaying)
             {
-                List<Transform> childs = new();
-                for (int i = 0; i < childCount; i++) 
-                    childs.Add(tasksListParent.GetChild(i));
-                foreach (Transform child in childs)
+                List<Transform> children = new();
+                for (int i = 0; i < childCount; i++)
+                    children.Add(tasksListParent.GetChild(i));
+
+                foreach (Transform child in children)
                     GameObject.Destroy(child.gameObject);
-                childs.Clear();
+
+                children.Clear();
             }
             else
             {
                 for (int i = 0; i < childCount; i++)
                 {
-
                     GameObject.DestroyImmediate(tasksListParent.GetChild(0).gameObject);
                 }
             }
         }
+        #endregion
 
+        #region Editor Tools
+#if UNITY_EDITOR
+        [Button("Add Test Task")]
+        public void AddTestTask()
+        {
+            var testTask = new TaskUIData(
+                $"Test Task {taskUIElements.Count + 1}",
+                "Test description",
+                TaskUIData.State.NotStarted
+            );
+            AddTask(testTask);
+        }
+
+        [Button("Test State Updates")]
+        public void TestStateUpdates()
+        {
+            if (taskUIElements.Count > 0)
+            {
+                StartCoroutine(TestStatesCoroutine());
+            }
+        }
+
+        private IEnumerator TestStatesCoroutine()
+        {
+            var states = new[] {
+                TaskUIData.State.InProgress,
+                TaskUIData.State.Completed,
+                TaskUIData.State.Failed,
+                TaskUIData.State.NotStarted
+            };
+
+            for (int i = 0; i < taskUIElements.Count; i++)
+            {
+                foreach (var state in states)
+                {
+                    UpdateTaskState(i, state);
+                    yield return new WaitForSeconds(0.8f);
+                }
+            }
+        }
+#endif
+        #endregion
     }
 }
-
