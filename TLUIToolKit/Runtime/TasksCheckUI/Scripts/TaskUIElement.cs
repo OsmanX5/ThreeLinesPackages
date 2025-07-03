@@ -19,8 +19,11 @@ namespace TLUIToolkit
 
         [SerializeField]
         GameObject notStartedView,
+            failerView,
             inProgressView,
             completedView;
+
+
         [SerializeField]
         GameObject lastLine;
 
@@ -54,6 +57,7 @@ namespace TLUIToolkit
             notStartedView.SetActive(newState == Data.State.NotStarted);
             inProgressView.SetActive(newState == Data.State.InProgress);
             completedView.SetActive(newState == Data.State.Completed);
+            failerView.SetActive(newState == Data.State.Failed);
             mainText.color = newState switch
             {
                 Data.State.Completed => SuccessColor,
