@@ -33,10 +33,9 @@ namespace TLUIToolkit
         [SerializeField, Required] private GameObject lastLine;
         [SerializeField, Required] private Image lastLineFill;
 
-        [Header("State Colors")]
-        [SerializeField] private Color successColor = Color.green;
-        [SerializeField] private Color failureColor = Color.red;
-        [SerializeField] private Color inProgressColor = Color.yellow;
+        [SerializeField] private Color successColor=>TLUIColors.SuccessGreenColor;
+        [SerializeField] private Color failureColor => TLUIColors.ErrorRedColor;
+        [SerializeField] private Color inProgressColor => TLUIColors.WarningYellowColor;
         [SerializeField] private Color notStartedColor = Color.white;
         #endregion
 
