@@ -13,29 +13,46 @@ namespace TLUIToolkit
     {
         #region Events
         public event Action<int, TaskUIData.State> OnTaskStateChanged;
-        public event Action<int> OnTaskAdded;
+        public event Action<int,TaskUIElement> OnTaskAdded;
         public event Action OnTasksCleared;
-        public event Action OnTasksInitialized;
+        public event Action<List<TaskUIElement>> OnTasksInitialized;
+
         #endregion
 
+        
         #region Serialized Fields
-        [SerializeField] private Transform tasksListParent;
-        [SerializeField, AssetsOnly] private GameObject taskUIElementPrefab;
-        [SerializeField] private List<TaskUIData> taskUIElements = new();
-        #endregion
+        
+        [SerializeField] 
+        private Transform tasksListParent;
+        
+        [SerializeField, AssetsOnly] 
+        private GameObject taskUIElementPrefab;
+        
+        [SerializeField] 
+        private List<TaskUIData> taskUIElements = new();
 
+        List<TaskUIElement> taskUIElementsObjects = new();
+
+        public List<TaskUIElement> TaskUIElementsObjects => taskUIElementsObjects;
+        #endregion
+        private void Start()
+        {
+            CreateTasksUI();
+        }
         #region Public Methods
-        public void InitWithTasks(List<TaskUIData> tasksData)
+        public List<TaskUIElement> InitWithTasks(List<TaskUIData> tasksData)
         {
             ClearTasks();
             taskUIElements = tasksData;
             CreateTasksUI();
-            OnTasksInitialized?.Invoke();
+            OnTasksInitialized?.Invoke(taskUIElementsObjects);
+            return taskUIElementsObjects;
         }
 
         public void ClearTasks()
         {
             taskUIElements.Clear();
+            taskUIElementsObjects.Clear();
             DestroyAllChildren();
             OnTasksCleared?.Invoke();
         }
@@ -64,7 +81,7 @@ namespace TLUIToolkit
                 RefreshTaskUI(taskUIElements.Count - 2);
             }
 
-            OnTaskAdded?.Invoke(taskUIElements.Count - 1);
+            OnTaskAdded?.Invoke(taskUIElements.Count - 1, taskUI);
         }
 
         [Button]
@@ -95,7 +112,7 @@ namespace TLUIToolkit
         private void CreateTasksUI()
         {
             DestroyAllChildren();
-
+            taskUIElementsObjects = new List<TaskUIElement>();
             for (int i = 0; i < taskUIElements.Count; i++)
             {
                 TaskUIData taskData = taskUIElements[i];
@@ -108,6 +125,7 @@ namespace TLUIToolkit
                 {
                     taskUI.SetData(taskData);
                 }
+                taskUIElementsObjects.Add(taskUI);
             }
         }
 
