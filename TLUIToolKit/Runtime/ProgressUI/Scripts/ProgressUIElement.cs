@@ -40,7 +40,7 @@ namespace TLUIToolkit
         #endregion
 
         #region Private Fields
-        private UIData.State lastState;
+        private UIData.State lastState = UIData.State.NotStarted;
         private bool isFilling = false;
         private Coroutine fillCoroutine;
 
@@ -91,7 +91,8 @@ namespace TLUIToolkit
 
         private void UpdateState(UIData.State newState)
         {
-            if (newState == lastState) return;
+            if (newState == lastState) 
+                return;
 
             Debug.Log($"Updating {GetDisplayName()} to {newState}");
 
@@ -278,14 +279,9 @@ namespace TLUIToolkit
         [Serializable]
         public class UIData
         {
-            [field: SerializeField]
-            public string MainText { get; set; } = string.Empty;
-
-            [field: SerializeField]
-            public string SubText { get; set; } = string.Empty;
-
-            [field: SerializeField]
-            public State CurrentState { get; set; } = State.NotStarted;
+            public string MainText;
+            public string SubText ;
+            public State CurrentState ;
 
             public bool IsLast { get; set; } = false;
 

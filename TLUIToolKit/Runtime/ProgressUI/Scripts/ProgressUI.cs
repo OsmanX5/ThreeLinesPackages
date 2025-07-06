@@ -39,14 +39,27 @@ namespace TLUIToolkit
         #endregion
         private void Start()
         {
-            CreateProgressUI();
+            InitWithLocalUIElements();
+        }
+        [Button(ButtonSizes.Large)]
+        public void InitWithLocalUIElements()
+        {
+            List<ProgressUIElement.UIData> localUIData = new(progressUIElementsData);
+            InitWithUIData(localUIData,resetToNotStarted:false);
         }
         #region Public Methods
-        public List<ProgressUIElement> InitWithUIData(List<ProgressUIElement.UIData> uiDataList)
+        public List<ProgressUIElement> InitWithUIData(List<ProgressUIElement.UIData> uiDataList,bool resetToNotStarted = false)
         {
+            if(uiDataList == null || uiDataList.Count == 0)
+            {
+                Debug.LogWarning("No UI data provided. Progress UI will be empty.");
+                return progressUIElementsObjects;
+            }
             ClearProgressUI();
             progressUIElementsData = uiDataList;
-            CreateProgressUI();
+
+            CreateProgressUI(resetToNotStarted);
+            
             OnProgressElementsInitlized?.Invoke(progressUIElementsObjects);
             return progressUIElementsObjects;
         }
@@ -59,7 +72,7 @@ namespace TLUIToolkit
             OnProgressCleared?.Invoke();
         }
 
-        public void AddUIDataElement(ProgressUIElement.UIData uiElementData)
+        public ProgressUIElement AddUIDataElement(ProgressUIElement.UIData uiElementData)
         {
             // Update previous last task
             if (progressUIElementsData.Count > 0)
@@ -71,10 +84,10 @@ namespace TLUIToolkit
             progressUIElementsData.Add(uiElementData);
 
             var taskUIElement = Instantiate(progressUIElementPrefab, progressUIElementsParent);
-            var taskUI = taskUIElement.GetComponent<ProgressUIElement>();
-            if (taskUI != null)
+            var progressUIElement = taskUIElement.GetComponent<ProgressUIElement>();
+            if (progressUIElement != null)
             {
-                taskUI.SetData(uiElementData);
+                progressUIElement.SetData(uiElementData);
             }
 
             // Refresh previous task to remove last line
@@ -83,7 +96,8 @@ namespace TLUIToolkit
                 RefreshProgressUI(progressUIElementsData.Count - 2);
             }
 
-            OnProgressElementAdded?.Invoke(progressUIElementsData.Count - 1, taskUI);
+            OnProgressElementAdded?.Invoke(progressUIElementsData.Count - 1, progressUIElement);
+            return progressUIElement;
         }
 
         [Button]
@@ -111,14 +125,15 @@ namespace TLUIToolkit
 
         #region Private Methods
         [Button]
-        private void CreateProgressUI()
+        private void CreateProgressUI(bool resetToNotStarted)
         {
             DestroyAllChildren();
             progressUIElementsObjects = new List<ProgressUIElement>();
             for (int i = 0; i < progressUIElementsData.Count; i++)
             {
                 ProgressUIElement.UIData taskData = progressUIElementsData[i];
-                taskData.CurrentState = ProgressUIElement.UIData.State.NotStarted; // Reset state for new UI
+                if(resetToNotStarted)
+                    taskData.CurrentState = ProgressUIElement.UIData.State.NotStarted; // Reset state for new UI
                 var taskUIElement = Instantiate(progressUIElementPrefab, progressUIElementsParent);
                 var taskUI = taskUIElement.GetComponent<ProgressUIElement>();
                 taskData.IsLast = i == progressUIElementsData.Count - 1; // Set last element
@@ -172,7 +187,7 @@ namespace TLUIToolkit
         #region Editor Tools
 #if UNITY_EDITOR
         [Button("Add Test Task")]
-        public void AddProgressUIElement()
+        void AddProgressUIElement()
         {
             var testTask = new ProgressUIElement.UIData(
                 $"Test Task {progressUIElementsData.Count + 1}",
@@ -183,7 +198,7 @@ namespace TLUIToolkit
         }
 
         [Button("Test State Updates")]
-        public void TestStateUpdates()
+        void TestStateUpdates()
         {
             if (progressUIElementsData.Count > 0)
             {
