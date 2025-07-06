@@ -8,12 +8,12 @@ using TMPro;
 namespace TLUIToolkit
 {
     /// <summary>
-    /// UI element for displaying task progress with visual states and animations
+    /// UI element for displaying progress with visual states and animations
     /// </summary>
-    public class TaskUIElement : MonoBehaviour
+    public class ProgressUIElement : MonoBehaviour
     {
         #region Events
-        public event Action<TaskUIData.State> OnStateChanged;
+        public event Action<UIData.State> OnStateChanged;
         public event Action OnStateFillAnimationStarted;
         public event Action OnStateFillAnimationCompleted;
         #endregion
@@ -40,7 +40,7 @@ namespace TLUIToolkit
         #endregion
 
         #region Private Fields
-        private TaskUIData.State lastState;
+        private UIData.State lastState;
         private bool isFilling = false;
         private Coroutine fillCoroutine;
 
@@ -50,14 +50,14 @@ namespace TLUIToolkit
 
         #region Public Methods
         /// <summary>
-        /// Sets the task data and updates the UI accordingly
+        /// Sets the ui data and updates the UI accordingly
         /// </summary>
-        /// <param name="data">Task data to display</param>
-        public void SetData(TaskUIData data)
+        /// <param name="data">UI data to display</param>
+        public void SetData(UIData data)
         {
             if (data == null)
             {
-                Debug.LogError("TaskUIData is null", this);
+                Debug.LogError("UIData is null", this);
                 return;
             }
 
@@ -70,11 +70,11 @@ namespace TLUIToolkit
         /// Updates only the state without changing text content
         /// </summary>
         /// <param name="newState">New state to set</param>
-        public void UpdateTaskState(TaskUIData.State newState)
+        public void UpdateProgressState(UIData.State newState)
         {
             UpdateState(newState);
         }
-        public void UpdateTextContent(TaskUIData data)
+        public void UpdateTextContent(UIData data)
         {
             if (mainText != null) mainText.text = data.MainText;
             if (subText != null) subText.text = data.SubText;
@@ -89,7 +89,7 @@ namespace TLUIToolkit
                 lastLine.SetActive(isVisible);
         }
 
-        private void UpdateState(TaskUIData.State newState)
+        private void UpdateState(UIData.State newState)
         {
             if (newState == lastState) return;
 
@@ -105,12 +105,12 @@ namespace TLUIToolkit
             lastState = newState;
         }
 
-        private void UpdateStateViews(TaskUIData.State state)
+        private void UpdateStateViews(UIData.State state)
         {
-            SetViewState(notStartedView, state == TaskUIData.State.NotStarted);
-            SetViewState(inProgressView, state == TaskUIData.State.InProgress);
-            SetViewState(completedView, state == TaskUIData.State.Completed);
-            SetViewState(failedView, state == TaskUIData.State.Failed);
+            SetViewState(notStartedView, state == UIData.State.NotStarted);
+            SetViewState(inProgressView, state == UIData.State.InProgress);
+            SetViewState(completedView, state == UIData.State.Completed);
+            SetViewState(failedView, state == UIData.State.Failed);
         }
 
         private void SetViewState(GameObject view, bool isActive)
@@ -119,15 +119,15 @@ namespace TLUIToolkit
                 view.SetActive(isActive);
         }
 
-        private void UpdateTextColor(TaskUIData.State state)
+        private void UpdateTextColor(UIData.State state)
         {
             if (mainText == null) return;
 
             mainText.color = state switch
             {
-                TaskUIData.State.Completed => successColor,
-                TaskUIData.State.InProgress => inProgressColor,
-                TaskUIData.State.Failed => failureColor,
+                UIData.State.Completed => successColor,
+                UIData.State.InProgress => inProgressColor,
+                UIData.State.Failed => failureColor,
                 _ => notStartedColor
             };
         }
@@ -138,7 +138,7 @@ namespace TLUIToolkit
                 lastLineFill.fillAmount = 0;
         }
 
-        private void StartFillAnimation(TaskUIData.State currentState)
+        private void StartFillAnimation(UIData.State currentState)
         {
             if (!ValidateFillComponents()) return;
 
@@ -157,27 +157,27 @@ namespace TLUIToolkit
         {
             if (lastLineFill == null)
             {
-                Debug.LogWarning("Last Line Fill is not assigned in TaskUIElement", this);
+                Debug.LogWarning("Last Line Fill is not assigned in ProgressUIElement", this);
                 return false;
             }
             return true;
         }
 
-        private void UpdateFillColor(TaskUIData.State state)
+        private void UpdateFillColor(UIData.State state)
         {
             lastLineFill.color = state switch
             {
-                TaskUIData.State.Completed => successColor,
-                TaskUIData.State.Failed => failureColor,
+                UIData.State.Completed => successColor,
+                UIData.State.Failed => failureColor,
                 _ => notStartedColor
             };
         }
 
-        private (float targetFill, float startFill) GetFillParameters(TaskUIData.State state)
+        private (float targetFill, float startFill) GetFillParameters(UIData.State state)
         {
             return state switch
             {
-                TaskUIData.State.NotStarted => (0f, 1f),
+                UIData.State.NotStarted => (0f, 1f),
                 _ => (1f, 0f)
             };
         }
@@ -239,11 +239,11 @@ namespace TLUIToolkit
 
         #region Editor Tools
 #if UNITY_EDITOR
-        [Button("Test Task UI")]
+        [Button("Test Progress UI")]
         [PropertySpace(10)]
-        public void UnitTest(string mainText, string subText, TaskUIData.State state, bool isLast)
+        public void UnitTest(string mainText, string subText, UIData.State state, bool isLast)
         {
-            var testData = new TaskUIData
+            var testData = new UIData
             {
                 MainText = mainText,
                 SubText = subText,
@@ -262,56 +262,57 @@ namespace TLUIToolkit
 
         private IEnumerator TestAllStatesCoroutine()
         {
-            var states = (TaskUIData.State[])Enum.GetValues(typeof(TaskUIData.State));
+            var states = (UIData.State[])Enum.GetValues(typeof(UIData.State));
             foreach (var state in states)
             {
-                UnitTest("Test Task", $"Testing {state}", state, false);
+                UnitTest("Test Element", $"Testing {state}", state, false);
                 yield return new WaitForSeconds(1f);
             }
         }
 #endif
         #endregion
+        
+        /// <summary>
+        /// Data structure for Progress information
+        /// </summary>
+        [Serializable]
+        public class UIData
+        {
+            [field: SerializeField]
+            public string MainText { get; set; } = string.Empty;
+
+            [field: SerializeField]
+            public string SubText { get; set; } = string.Empty;
+
+            [field: SerializeField]
+            public State CurrentState { get; set; } = State.NotStarted;
+
+            public bool IsLast { get; set; } = false;
+
+            public enum State
+            {
+                NotStarted,
+                InProgress,
+                Completed,
+                Failed
+            }
+
+            /// <summary>
+            /// Creates a new UIData instance
+            /// </summary>
+            public UIData() { }
+
+            /// <summary>
+            /// Creates a new UIData instance with specified values
+            /// </summary>
+            public UIData(string mainText, string subText, State state = State.NotStarted, bool isLast = false)
+            {
+                MainText = mainText;
+                SubText = subText;
+                CurrentState = state;
+                IsLast = isLast;
+            }
+        }
     }
 
-    /// <summary>
-    /// Data structure for task information
-    /// </summary>
-    [Serializable]
-    public class TaskUIData
-    {
-        [field: SerializeField]
-        public string MainText { get; set; } = string.Empty;
-
-        [field: SerializeField]
-        public string SubText { get; set; } = string.Empty;
-
-        [field: SerializeField]
-        public State CurrentState { get; set; } = State.NotStarted;
-
-        public bool IsLast { get; set; } = false;
-
-        public enum State
-        {
-            NotStarted,
-            InProgress,
-            Completed,
-            Failed
-        }
-
-        /// <summary>
-        /// Creates a new TaskUIData instance
-        /// </summary>
-        public TaskUIData() { }
-
-        /// <summary>
-        /// Creates a new TaskUIData instance with specified values
-        /// </summary>
-        public TaskUIData(string mainText, string subText, State state = State.NotStarted, bool isLast = false)
-        {
-            MainText = mainText;
-            SubText = subText;
-            CurrentState = state;
-            IsLast = isLast;
-        }
-    }
 }

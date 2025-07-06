@@ -5,8 +5,8 @@ namespace ThreeLinesUI.UIToolkit.Editor
 {
     public static class TasksCheckUIEditor
     {
-        private const string PREFAB_RESOURCES_PATH = "Prefabs/TasksCheckUI";
-        private const string MENU_PATH = "GameObject/ThreeLinesUI/UIToolkit/TasksCheckUI";
+        private const string PREFAB_RESOURCES_PATH = "Prefabs/ProgressUI";
+        private const string MENU_PATH = "GameObject/ThreeLinesUI/UIToolkit/ProgressUI";
         private const int MENU_PRIORITY = 0;
 
         [MenuItem(MENU_PATH, false, MENU_PRIORITY)]
@@ -29,9 +29,9 @@ namespace ThreeLinesUI.UIToolkit.Editor
 
             if (prefab == null)
             {
-                Debug.LogError($"TasksCheckUI prefab not found at path: {PREFAB_RESOURCES_PATH}");
+                Debug.LogError($"ProgressUI prefab not found at path: {PREFAB_RESOURCES_PATH}");
                 EditorUtility.DisplayDialog("Error",
-                    $"Could not find TasksCheckUI prefab at:\n{PREFAB_RESOURCES_PATH}\n\nPlease ensure the prefab exists at this location.",
+                    $"Could not find ProgressUI prefab at:\n{PREFAB_RESOURCES_PATH}\n\nPlease ensure the prefab exists at this location.",
                     "OK");
                 return;
             }
@@ -46,10 +46,10 @@ namespace ThreeLinesUI.UIToolkit.Editor
                 if (parentRectTransform == null)
                 {
                     Debug.LogError($"Selected parent '{parent.name}' is not a UI element (no RectTransform component). " +
-                                 "Please select a UI element (Canvas, Panel, etc.) as parent for TasksCheckUI.");
+                                 "Please select a UI element (Canvas, Panel, etc.) as parent for ProgressUI.");
                     EditorUtility.DisplayDialog("Invalid Parent",
                         $"Selected parent '{parent.name}' is not a UI element.\n\n" +
-                        "TasksCheckUI must be created as a child of a UI element with RectTransform component.\n\n" +
+                        "ProgressUI must be created as a child of a UI element with RectTransform component.\n\n" +
                         "Please select a Canvas, Panel, or other UI element as parent.",
                         "OK");
                     return;
@@ -81,7 +81,7 @@ namespace ThreeLinesUI.UIToolkit.Editor
 
             if (instance == null)
             {
-                Debug.LogError("Failed to instantiate TasksCheckUI prefab");
+                Debug.LogError("Failed to instantiate ProgressUI prefab");
                 return;
             }
 
@@ -95,9 +95,9 @@ namespace ThreeLinesUI.UIToolkit.Editor
             Selection.activeGameObject = instance;
 
             // Register undo
-            Undo.RegisterCreatedObjectUndo(instance, "Create TasksCheckUI");
+            Undo.RegisterCreatedObjectUndo(instance, "Create ProgressUI");
 
-            Debug.Log($"TasksCheckUI prefab created successfully as child of '{parent.name}': {instance.name}");
+            Debug.Log($"ProgressUI prefab created successfully as child of '{parent.name}': {instance.name}");
         }
 
         private static void PositionNewInstance(GameObject instance)
@@ -124,7 +124,7 @@ namespace ThreeLinesUI.UIToolkit.Editor
         }
 
         // Alternative method to create via Assets menu (optional)
-        [MenuItem("Assets/Create/ThreeLinesUI/UIToolkit/TasksCheckUI", false, 81)]
+        [MenuItem("Assets/Create/ThreeLinesUI/UIToolkit/ProgressUI", false, 81)]
         private static void CreateTasksCheckUIFromAssets()
         {
             CreateTasksCheckUIPrefab();
