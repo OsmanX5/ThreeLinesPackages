@@ -55,7 +55,12 @@ namespace TLUIToolkit
         }
 
         [Button(ButtonSizes.Large)]
-        void Init() {
+        public void Init() {
+            if (transform.childCount == 0)
+            {
+                Debug.LogWarning("No child elements found in PrespectiveLayout. Please add PrespectiveLayoutElement components to child objects.");
+                return;
+            }
             AddPrespectiveComponentToChilds();
             BuildQueue();
             SetElementsPositions();
