@@ -25,6 +25,15 @@ namespace TLUIToolkit
         private Material material;
         private Vector4 outerUV = new Vector4(0, 0, 1, 1);
 
+        public float GrayScaleLevel
+        {
+            get => grayScaleLevel;
+            set
+            {
+                grayScaleLevel = Mathf.Clamp01(value);
+                Refresh();
+            }
+        }
         [HideInInspector, SerializeField] private MaskableGraphic image;
 
         private void OnValidate()
