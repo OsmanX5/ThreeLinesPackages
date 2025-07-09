@@ -31,18 +31,12 @@ namespace TLUIToolkit
         [Tooltip("The initial index to set when the selector starts")]
         protected int initialIndex = 0;
 
-        [InfoBox("Not Recomended to use these events in production code, use c# Events instead.", Icon = SdfIconType.ExclamationCircleFill, InfoMessageType = InfoMessageType.Warning)]
         [Title("Unity Events")]
         public UnityEvent OnNextUnityEvent;
         public UnityEvent OnPreviousUnityEvent;
         public UnityEvent<int> OnIndexChangedUnityEvent;
-        public UnityEvent<string> OnValidationErrorUnityEvent; // New UnityEvent for validation errors
 
         [Title("Debug Info")]
-        [ShowInInspector, ReadOnly]
-        [Tooltip("Current selected index")]
-        private int _currentIndex = 0; // Backing field for inspector display
-
         [ShowInInspector, ReadOnly]
         [Tooltip("Is the component properly initialized?")]
         private bool isInitialized = false;
@@ -55,17 +49,11 @@ namespace TLUIToolkit
         public SelectorLogic Selector { get; private set; }
 
         // Public Properties for accessing selector state through the component
-        public int CurrentIndex => Selector != null ? Selector.CurrentIndex : _currentIndex; // Use backing field if logic isn't ready
+        public int CurrentIndex => Selector != null ? Selector.CurrentIndex : initialIndex;
         public int ItemsCount => Selector != null ? Selector.ItemsCount : initialItemsCount;
         public bool AllowLooping => Selector != null ? Selector.AllowLooping : allowLooping;
         public bool IsInitialized => isInitialized;
         public bool HasValidReferences => hasValidReferences;
-
-        // C# Events are removed from here, only UnityEvents are exposed.
-        // public event Action<int> OnIndexChanged;
-        // public event Action OnNext;
-        // public event Action OnPrevious;
-        // public event Action<string> OnValidationError;
 
         #region Unity Lifecycle
 
@@ -73,7 +61,8 @@ namespace TLUIToolkit
         {
             try
             {
-                InitlizeWith(initialItemsCount, initialIndex); // Initialize with the initial values
+                // Initialize with the initial values
+                InitializeWith(initialItemsCount, initialIndex);
             }
             catch (Exception ex)
             {
@@ -116,9 +105,6 @@ namespace TLUIToolkit
                 }
             }
 
-            // Sync _currentIndex for inspector display, clamping it to initialItemsCount range
-            _currentIndex = Mathf.Clamp(initialIndex, 0, initialItemsCount > 0 ? initialItemsCount - 1 : 0);
-
             // If Selector exists, update its values as well (important for editor play mode transitions or live changes)
             if (Selector != null)
             {
@@ -132,7 +118,6 @@ namespace TLUIToolkit
         private void OnDestroy()
         {
             CleanupButtons();
-            UnsubscribeFromLogicEvents();
         }
 
         #endregion
@@ -155,7 +140,6 @@ namespace TLUIToolkit
             {
                 var errorMessage = $"Reference validation failed: {string.Join(", ", errors)}";
                 Debug.LogError($"[{gameObject.name}] {errorMessage}", this);
-                OnValidationErrorUnityEvent?.Invoke(errorMessage); // Invoke UnityEvent for validation errors
                 throw new InvalidOperationException(errorMessage);
             }
         }
@@ -164,13 +148,13 @@ namespace TLUIToolkit
         {
             if (nextBtn != null)
             {
-                nextBtn.onClick.RemoveAllListeners(); // Use RemoveAllListeners for safety
+                nextBtn.onClick.RemoveAllListeners();
                 nextBtn.onClick.AddListener(OnNextButtonClicked);
             }
 
             if (previousBtn != null)
             {
-                previousBtn.onClick.RemoveAllListeners(); // Use RemoveAllListeners for safety
+                previousBtn.onClick.RemoveAllListeners();
                 previousBtn.onClick.AddListener(OnPreviousButtonClicked);
             }
         }
@@ -184,60 +168,6 @@ namespace TLUIToolkit
                 previousBtn.onClick.RemoveListener(OnPreviousButtonClicked);
         }
 
-        bool isSubscribedToLogicEvents = false;
-        private void SubscribeToLogicEvents()
-        {
-            if (Selector == null || isSubscribedToLogicEvents) return;
-
-            Selector.OnIndexChanged += HandleLogicIndexChanged;
-            Selector.OnNext += HandleLogicNext;
-            Selector.OnPrevious += HandleLogicPrevious;
-            Selector.OnValidationError += HandleLogicValidationError;
-            isSubscribedToLogicEvents=true;
-        }
-
-        private void UnsubscribeFromLogicEvents()
-        {
-            if (Selector == null|| !isSubscribedToLogicEvents) return;
-
-            Selector.OnIndexChanged -= HandleLogicIndexChanged;
-            Selector.OnNext -= HandleLogicNext;
-            Selector.OnPrevious -= HandleLogicPrevious;
-            Selector.OnValidationError -= HandleLogicValidationError;
-            isSubscribedToLogicEvents = false;
-        }
-
-        #endregion
-
-        #region Event Handlers for Logic
-
-        private void HandleLogicIndexChanged(int newIndex)
-        {
-            _currentIndex = newIndex; // Update the inspector field
-            // OnIndexChanged?.Invoke(newIndex); // Removed C# event
-            OnIndexChangedUnityEvent?.Invoke(newIndex);
-            UpdateButtonsInteractibility();
-        }
-
-        private void HandleLogicNext()
-        {
-            // OnNext?.Invoke(); // Removed C# event
-            OnNextUnityEvent?.Invoke();
-        }
-
-        private void HandleLogicPrevious()
-        {
-            // OnPrevious?.Invoke(); // Removed C# event
-            OnPreviousUnityEvent?.Invoke();
-        }
-
-        private void HandleLogicValidationError(string message)
-        {
-            Debug.LogError($"[{gameObject.name}] Logic Validation Error: {message}", this);
-            // OnValidationError?.Invoke(message); // Removed C# event
-            OnValidationErrorUnityEvent?.Invoke(message); // Invoke UnityEvent
-        }
-
         #endregion
 
         #region Button Callbacks (Delegate to Logic)
@@ -246,7 +176,12 @@ namespace TLUIToolkit
         {
             if (Selector != null)
             {
+                // GoNext will now internally log errors if any
                 Selector.GoNext();
+                // Manually invoke UnityEvents after the logic call
+                OnNextUnityEvent?.Invoke();
+                OnIndexChangedUnityEvent?.Invoke(Selector.CurrentIndex);
+                UpdateButtonsInteractibility();
             }
             else
             {
@@ -258,7 +193,12 @@ namespace TLUIToolkit
         {
             if (Selector != null)
             {
+                // GoPrevious will now internally log errors if any
                 Selector.GoPrevious();
+                // Manually invoke UnityEvents after the logic call
+                OnPreviousUnityEvent?.Invoke();
+                OnIndexChangedUnityEvent?.Invoke(Selector.CurrentIndex);
+                UpdateButtonsInteractibility();
             }
             else
             {
@@ -270,24 +210,28 @@ namespace TLUIToolkit
 
         #region Public Methods (Exposed from Component, delegate to Logic)
 
-        public void InitlizeWith(int itemsCount , int startIndex)
+        public void InitializeWith(int itemsCount, int startIndex)
         {
             CleanupButtons();
             ValidateReferences();
             // Initialize the pure logic class with the initialIndex
             Selector = new SelectorLogic(itemsCount, allowLooping, startIndex);
-            SubscribeToLogicEvents();
             InitializeButtons();
             isInitialized = true;
             UpdateButtonsInteractibility(); // Initial update based on logic state
         }
+
         [Button("Next Item")]
-        [EnableIf("@isInitialized && ItemsCount > 0")] // Using ItemsCount from component for Odin
+        [EnableIf("@isInitialized && ItemsCount > 0")]
         public virtual void Next()
         {
             if (Selector != null)
             {
+                // Next will now internally log errors if any
                 Selector.GoNext();
+                OnNextUnityEvent?.Invoke();
+                OnIndexChangedUnityEvent?.Invoke(Selector.CurrentIndex);
+                UpdateButtonsInteractibility();
             }
             else
             {
@@ -296,12 +240,16 @@ namespace TLUIToolkit
         }
 
         [Button("Previous Item")]
-        [EnableIf("@isInitialized && ItemsCount > 0")] // Using ItemsCount from component for Odin
+        [EnableIf("@isInitialized && ItemsCount > 0")]
         public virtual void Previous()
         {
             if (Selector != null)
             {
+                // Previous will now internally log errors if any
                 Selector.GoPrevious();
+                OnPreviousUnityEvent?.Invoke();
+                OnIndexChangedUnityEvent?.Invoke(Selector.CurrentIndex);
+                UpdateButtonsInteractibility();
             }
             else
             {
@@ -315,7 +263,13 @@ namespace TLUIToolkit
         {
             if (Selector != null)
             {
-                return Selector.SetIndex(newIndex);
+                bool success = Selector.SetIndex(newIndex);
+                if (success)
+                {
+                    OnIndexChangedUnityEvent?.Invoke(Selector.CurrentIndex);
+                    UpdateButtonsInteractibility();
+                }
+                return success;
             }
             Debug.LogError($"[{gameObject.name}] SelectorLogic not initialized when calling SetIndex()", this);
             return false;
@@ -328,6 +282,8 @@ namespace TLUIToolkit
             if (Selector != null)
             {
                 Selector.ResetToFirst();
+                OnIndexChangedUnityEvent?.Invoke(Selector.CurrentIndex);
+                UpdateButtonsInteractibility();
             }
             else
             {
@@ -342,6 +298,8 @@ namespace TLUIToolkit
             if (Selector != null)
             {
                 Selector.ResetToLast();
+                OnIndexChangedUnityEvent?.Invoke(Selector.CurrentIndex);
+                UpdateButtonsInteractibility();
             }
             else
             {
@@ -354,7 +312,14 @@ namespace TLUIToolkit
             initialItemsCount = newCount; // Keep the inspector value updated
             if (Selector != null)
             {
+                int oldIndex = Selector.CurrentIndex;
                 Selector.SetItemsCount(newCount);
+                // If the index was clamped due to new items count, fire the event
+                if (oldIndex != Selector.CurrentIndex)
+                {
+                    OnIndexChangedUnityEvent?.Invoke(Selector.CurrentIndex);
+                }
+                UpdateButtonsInteractibility();
             }
             else
             {
@@ -362,9 +327,27 @@ namespace TLUIToolkit
             }
         }
 
+        /// <summary>
+        /// Sets whether the selector should allow looping from the last to the first item and vice versa.
+        /// </summary>
+        /// <param name="allow">True to allow looping, false otherwise.</param>
+        public virtual void SetAllowLooping(bool allow)
+        {
+            allowLooping = allow; // Keep the inspector value updated
+            if (Selector != null)
+            {
+                Selector.SetAllowLooping(allow);
+                UpdateButtonsInteractibility(); // Update interactability based on new looping state
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] SelectorLogic not initialized. SetAllowLooping will only update allowLooping property.", this);
+            }
+        }
+
         // Expose CanGoNext/Previous from logic
-        public bool CanGoNext => Selector != null ? Selector.CanGoNext() : false;
-        public bool CanGoPrevious => Selector != null ? Selector.CanGoPrevious() : false;
+        public bool CanGoNextProperty => Selector != null ? Selector.CanGoNext() : false;
+        public bool CanGoPreviousProperty => Selector != null ? Selector.CanGoPrevious() : false;
 
 
         #endregion
@@ -413,15 +396,15 @@ namespace TLUIToolkit
             Debug.Log($"[{gameObject.name}] Items Count: {ItemsCount} (from logic: {Selector?.ItemsCount})", this);
             Debug.Log($"[{gameObject.name}] Current Index: {CurrentIndex} (from logic: {Selector?.CurrentIndex})", this);
             Debug.Log($"[{gameObject.name}] Allow Looping: {AllowLooping} (from logic: {Selector?.AllowLooping})", this);
-            Debug.Log($"[{gameObject.name}] Can Go Next: {CanGoNext} (from logic: {Selector?.CanGoNext()})", this);
-            Debug.Log($"[{gameObject.name}] Can Go Previous: {CanGoPrevious} (from logic: {Selector?.CanGoPrevious()})", this);
+            Debug.Log($"[{gameObject.name}] Can Go Next: {CanGoNextProperty} (from logic: {Selector?.CanGoNext()})", this);
+            Debug.Log($"[{gameObject.name}] Can Go Previous: {CanGoPreviousProperty} (from logic: {Selector?.CanGoPrevious()})", this);
             Debug.Log($"[{gameObject.name}] Next Button: {(nextBtn != null ? "Assigned" : "Missing")}", this);
             Debug.Log($"[{gameObject.name}] Previous Button: {(previousBtn != null ? "Assigned" : "Missing")}", this);
         }
 
         [Button("Test Navigation")]
         [EnableIf("@isInitialized && ItemsCount > 0")]
-        private async void DebugTestNavigation(int pauseTime =0)
+        private async void DebugTestNavigation(int pauseTime = 0)
         {
             Debug.Log($"[{gameObject.name}] Testing navigation...", this);
             for (int i = 0; i < ItemsCount + 2; i++)
@@ -431,6 +414,9 @@ namespace TLUIToolkit
                 await Task.Delay(pauseTime * 1000);
             }
         }
+
+        [Button("Test Initialize")]
+        void UnitTest_InitializeWith(int count, int index) => InitializeWith(count, index);
 
         #endregion
     }

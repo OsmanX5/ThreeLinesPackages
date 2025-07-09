@@ -1,4 +1,5 @@
 using System;
+using UnityEngine; // Added for Debug.LogError
 
 namespace TLUIToolkit
 {
@@ -8,12 +9,6 @@ namespace TLUIToolkit
         public int CurrentIndex { get; private set; }
         public int ItemsCount { get; private set; }
         public bool AllowLooping { get; private set; }
-
-        // Events for external subscription
-        public event Action<int> OnIndexChanged;
-        public event Action OnNext;
-        public event Action OnPrevious;
-        public event Action<string> OnValidationError; // For logic-level validation errors
 
         // Constructor
         public SelectorLogic(int initialItemsCount = 0, bool allowLooping = false, int initialIndex = 0)
@@ -29,13 +24,13 @@ namespace TLUIToolkit
         {
             if (ItemsCount <= 0)
             {
-                InvokeValidationError("Cannot go next: No items available.");
+                Debug.LogError("Cannot go next: No items available.");
                 return false;
             }
 
             if (!CanGoNext())
             {
-                InvokeValidationError("Cannot go next: No more items or looping is disabled.");
+                Debug.LogError("Cannot go next: No more items or looping is disabled.");
                 return false;
             }
 
@@ -47,11 +42,7 @@ namespace TLUIToolkit
                 CurrentIndex = AllowLooping ? 0 : ItemsCount - 1;
             }
 
-            if (oldIndex != CurrentIndex)
-            {
-                OnNext?.Invoke();
-                OnIndexChanged?.Invoke(CurrentIndex);
-            }
+            // No event invocation needed here as events are removed
             return true;
         }
 
@@ -59,13 +50,13 @@ namespace TLUIToolkit
         {
             if (ItemsCount <= 0)
             {
-                InvokeValidationError("Cannot go previous: No items available.");
+                Debug.LogError("Cannot go previous: No items available.");
                 return false;
             }
 
             if (!CanGoPrevious())
             {
-                InvokeValidationError("Cannot go previous: No more items or looping is disabled.");
+                Debug.LogError("Cannot go previous: No more items or looping is disabled.");
                 return false;
             }
 
@@ -77,11 +68,7 @@ namespace TLUIToolkit
                 CurrentIndex = AllowLooping ? ItemsCount - 1 : 0;
             }
 
-            if (oldIndex != CurrentIndex)
-            {
-                OnPrevious?.Invoke();
-                OnIndexChanged?.Invoke(CurrentIndex);
-            }
+            // No event invocation needed here as events are removed
             return true;
         }
 
@@ -89,13 +76,13 @@ namespace TLUIToolkit
         {
             if (ItemsCount <= 0)
             {
-                InvokeValidationError("Cannot set index: No items available.");
+                Debug.LogError("Cannot set index: No items available.");
                 return false;
             }
 
             if (!IsValidIndex(newIndex))
             {
-                InvokeValidationError($"Invalid index: {newIndex}. Must be between 0 and {ItemsCount - 1}");
+                Debug.LogError($"Invalid index: {newIndex}. Must be between 0 and {ItemsCount - 1}");
                 return false;
             }
 
@@ -105,7 +92,7 @@ namespace TLUIToolkit
             }
 
             CurrentIndex = newIndex;
-            OnIndexChanged?.Invoke(CurrentIndex);
+            // No event invocation needed here as events are removed
             return true;
         }
 
@@ -113,7 +100,7 @@ namespace TLUIToolkit
         {
             if (newCount < 0)
             {
-                InvokeValidationError("ItemsCount cannot be negative.");
+                Debug.LogError("ItemsCount cannot be negative.");
                 return;
             }
 
@@ -123,12 +110,12 @@ namespace TLUIToolkit
             if (ItemsCount > 0 && CurrentIndex >= ItemsCount)
             {
                 CurrentIndex = ItemsCount - 1;
-                OnIndexChanged?.Invoke(CurrentIndex); // Invoke if index was clamped
+                // No event invocation needed here as events are removed
             }
             else if (ItemsCount == 0 && CurrentIndex != 0)
             {
                 CurrentIndex = 0;
-                OnIndexChanged?.Invoke(CurrentIndex); // Invoke if index was reset to 0
+                // No event invocation needed here as events are removed
             }
         }
 
@@ -154,11 +141,5 @@ namespace TLUIToolkit
         public bool IsValidIndex(int index) => ItemsCount > 0 && index >= 0 && index < ItemsCount;
         public bool CanGoNext() => ItemsCount > 0 && (AllowLooping || CurrentIndex < ItemsCount - 1);
         public bool CanGoPrevious() => ItemsCount > 0 && (AllowLooping || CurrentIndex > 0);
-
-        // Internal method for invoking validation errors
-        private void InvokeValidationError(string message)
-        {
-            OnValidationError?.Invoke(message);
-        }
     }
 }
