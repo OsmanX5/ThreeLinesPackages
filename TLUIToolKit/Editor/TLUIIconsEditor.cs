@@ -10,7 +10,7 @@ namespace TLUIToolkit.Editor
     /// This window allows developers to easily locate, select, or create the
     /// TLUIIconsLibrary asset, streamlining the workflow for icon management.
     /// </summary>
-    public class TLUIIconsEditor : EditorWindow
+    public class EditorWindow : UnityEditor.EditorWindow // Renamed to EditorWindow
     {
         // Reference to the user's editable TLUIIconsLibrary asset
         private TLUIIconsLibrary _iconLibrary;
@@ -37,7 +37,7 @@ namespace TLUIToolkit.Editor
         public static void ShowWindow()
         {
             // Get existing open window or create a new one.
-            GetWindow<TLUIIconsEditor>("TLUI Icons Library");
+            GetWindow<EditorWindow>("TLUI Icons Library"); // Updated to EditorWindow
         }
 
         /// <summary>
@@ -142,31 +142,41 @@ namespace TLUIToolkit.Editor
                     CreateNewIconLibraryAsset();
                 }
 
-                // Option to copy the default library if found
-                if (_defaultIconLibrary != null)
+                // New logic: Check if IconsLibrary exists in Assets folder, if not, offer to copy default
+                if (AssetDatabase.FindAssets("TLUIIconsLibrary t:ScriptableObject").Length == 0)
                 {
-                    EditorGUILayout.Space(5);
-                    EditorGUILayout.ObjectField("Default Library (from package)", _defaultIconLibrary, typeof(TLUIIconsLibrary), false);
+                    if (_defaultIconLibrary != null)
+                    {
+                        EditorGUILayout.Space(5);
+                        EditorGUILayout.ObjectField("Default Library (from package)", _defaultIconLibrary, typeof(TLUIIconsLibrary), false);
 
-                    // Buttons to select and open the default asset
-                    if (GUILayout.Button("Select Default Library in Project"))
-                    {
-                        Selection.activeObject = _defaultIconLibrary;
-                        EditorGUIUtility.PingObject(_defaultIconLibrary);
+                        if (GUILayout.Button("Copy Default Icons Library to Assets/Resources/"))
+                        {
+                            CopyDefaultIconLibraryAsset();
+                        }
                     }
-                    if (GUILayout.Button("Open Default Library Inspector"))
+                    else
                     {
-                        Selection.activeObject = _defaultIconLibrary;
-                    }
-
-                    if (GUILayout.Button("Copy Default Icons Library to Assets/Resources/"))
-                    {
-                        CopyDefaultIconLibraryAsset();
+                        EditorGUILayout.HelpBox("Default TLUIIconsLibrary not found using Resources.Load at internal path:\n" + DefaultPackageResourcePath, MessageType.Info);
                     }
                 }
-                else
+                else // Existing TLUIIconsLibrary found somewhere, but not the one we want to manage (i.e. not in Assets/Resources or named 'TLUIIconsLibrary')
                 {
-                    EditorGUILayout.HelpBox("Default TLUIIconsLibrary not found using Resources.Load at internal path:\n" + DefaultPackageResourcePath, MessageType.Info);
+                    // Option to copy the default library if found, even if some other TLUIIconsLibrary exists
+                    if (_defaultIconLibrary != null)
+                    {
+                        EditorGUILayout.Space(5);
+                        EditorGUILayout.ObjectField("Default Library (from package)", _defaultIconLibrary, typeof(TLUIIconsLibrary), false);
+
+                        if (GUILayout.Button("Copy Default Icons Library to Assets/Resources/"))
+                        {
+                            CopyDefaultIconLibraryAsset();
+                        }
+                    }
+                    else
+                    {
+                        EditorGUILayout.HelpBox("Default TLUIIconsLibrary not found using Resources.Load at internal path:\n" + DefaultPackageResourcePath, MessageType.Info);
+                    }
                 }
             }
 
