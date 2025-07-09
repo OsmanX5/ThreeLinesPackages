@@ -1,4 +1,6 @@
 using DG.Tweening;
+using DG.Tweening.Core;
+using DG.Tweening.Plugins.Options;
 using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
@@ -54,12 +56,15 @@ namespace TLUIToolkit
 
         internal void FadeIn(float t)
         {
-            image.DOFade(1, t);
+            DOTween.ToAlpha(() => image.color, x => image.color = x, 1, t);
+     
         }
         internal void FadeOut(float t,float endValue =0.5f)
         {
-            image.DOFade(endValue, t);
+            DOTween.ToAlpha(() => image.color, x => image.color = x, endValue, t);
         }
+
+
         [Button]
         internal void Move(float deltaMove,float time)
         {
