@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fded638bc3e63b34dae65061138615aa, type: 3}
+  m_Name: DefaultUIIconsLibrary
+  m_EditorClassIdentifier: 
+  icons:
+  - type: 0
+    sprite: {fileID: 0}
+  - type: 1
+    sprite: {fileID: 0}
+  - type: 2
+    sprite: {fileID: 0}
+  - type: 3
+    sprite: {fileID: 0}
+  - type: 4
+    sprite: {fileID: 0}
+  - type: 5
+    sprite: {fileID: 0}
+  - type: 6
+    sprite: {fileID: 0}
+  - type: 7
+    sprite: {fileID: 0}
+  - type: 8
+    sprite: {fileID: 0}
+  - type: 9
+    sprite: {fileID: 0}
+  - type: 10
+    sprite: {fileID: 0}
+  - type: 11
+    sprite: {fileID: 0}
+  - type: 12
+    sprite: {fileID: 0}
+  - type: 13
+    sprite: {fileID: 0}
+  - type: 14
+    sprite: {fileID: 0}
+  - type: 15
+    sprite: {fileID: 0}
+  - type: 16
+    sprite: {fileID: 0}
+  - type: 17
+    sprite: {fileID: 0}
+  - type: 18
+    sprite: {fileID: 0}
+  - type: 19
+    sprite: {fileID: 0}
+  - type: 20
+    sprite: {fileID: 0}
+  - type: 21
+    sprite: {fileID: 0}
+  - type: 22
+    sprite: {fileID: 0}
+  - type: 23
+    sprite: {fileID: 0}
+  - type: 24
+    sprite: {fileID: 0}
+  - type: 25
+    sprite: {fileID: 0}
+  defaultNotFoundIcon: {fileID: 0}

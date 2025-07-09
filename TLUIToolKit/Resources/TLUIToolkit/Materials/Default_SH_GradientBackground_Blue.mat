@@ -13,10 +13,13 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
-  - _TYPE_LINEAR_X
+  - _GRADIENTAXIS_LINEAR_X
+  - _GRADIENTTYPE_CENTER
   m_InvalidKeywords:
+  - _AXIS_LINEAR_X
   - _FLIPVERTICAL_ON
   - _SAMPLES_MEDIUM
+  - _TYPE_LINEAR_X
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -45,16 +48,24 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AXIS: 0
     - _FlipVertical: 1
+    - _GRADIENTAXIS: 0
+    - _GRADIENTTYPE: 1
     - _GradientPower: 1.86
     - _R: 0.043
     - _Samples: 1
     - _TYPE: 0
+    - _WidthHeightRadius: 0
     m_Colors:
     - _AdditiveColor: {r: 0, g: 0, b: 0, a: 0}
     - _BlurOffset: {r: 1, g: 1, b: 0, a: 1}
     - _CenterColor: {r: 0.11658947, g: 0.3363158, b: 0.426, a: 1}
     - _EdgesColor: {r: 0.043137256, g: 0.19215688, b: 0.25490198, a: 0.9921889}
+    - _MainColor: {r: 0.10196077, g: 0.29411766, b: 0.37254897, a: 0}
+    - _OuterUV: {r: 0, g: 0, b: 0, a: 0}
+    - _SecondaryColor: {r: 0.043137237, g: 0.19215685, b: 0.25490198, a: 1}
+    - _WidthHeightRadius: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
 --- !u!114 &4781603669516515207
 MonoBehaviour:

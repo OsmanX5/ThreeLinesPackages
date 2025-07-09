@@ -1,13 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
+using Unity.VisualScripting;
 
 namespace TLUIToolkit.Editor
 {
     public class GradientBackgroundEditor
     {
-        private const string DEFAULT_MATERIAL_PATH = "Materials/Default_SH_GradientBackground_Blue";
-
+        
         [MenuItem("GameObject/ThreeLinesUI/UIToolkit/Create Gradient Background Image", false, 10)]
         public static void CreateGradientBackgroundImage()
         {
@@ -20,20 +20,6 @@ namespace TLUIToolkit.Editor
             // Set the RectTransform properties (100x100 dimensions)
             RectTransform rectTransform = imageObject.GetComponent<RectTransform>();
             rectTransform.sizeDelta = new Vector2(100f, 100f);
-
-            // Load the default material
-            Material defaultMaterial = Resources.Load<Material>(DEFAULT_MATERIAL_PATH);
-
-            if (defaultMaterial != null)
-            {
-                imageComponent.material = defaultMaterial;
-                Debug.Log($"Applied material: {defaultMaterial.name} to {imageObject.name}");
-            }
-            else
-            {
-                Debug.LogWarning($"Could not find material at path: {DEFAULT_MATERIAL_PATH}");
-                Debug.LogWarning("Please ensure the material exists at the specified location.");
-            }
 
             // Check if currently selected object has RectTransform
             Transform parentTransform = null;
@@ -65,7 +51,7 @@ namespace TLUIToolkit.Editor
 
             // Set the image as child of determined parent
             imageObject.transform.SetParent(parentTransform, false);
-
+            imageObject.AddComponent<GradientBackground>();
             // Select the created object in hierarchy
             Selection.activeGameObject = imageObject;
 
@@ -120,12 +106,7 @@ namespace TLUIToolkit.Editor
             RectTransform rectTransform = imageObject.GetComponent<RectTransform>();
             rectTransform.sizeDelta = new Vector2(100f, 100f);
 
-            // Apply material
-            Material defaultMaterial = AssetDatabase.LoadAssetAtPath<Material>(DEFAULT_MATERIAL_PATH);
-            if (defaultMaterial != null)
-            {
-                imageComponent.material = defaultMaterial;
-            }
+            ApplyGradientMaterial(imageComponent);
 
             return imageObject;
         }
@@ -142,19 +123,8 @@ namespace TLUIToolkit.Editor
                 Debug.LogError("Target Image component is null.");
                 return false;
             }
-
-            Material defaultMaterial = AssetDatabase.LoadAssetAtPath<Material>(DEFAULT_MATERIAL_PATH);
-            if (defaultMaterial != null)
-            {
-                targetImage.material = defaultMaterial;
-                EditorUtility.SetDirty(targetImage);
-                return true;
-            }
-            else
-            {
-                Debug.LogWarning($"Could not find material at path: {DEFAULT_MATERIAL_PATH}");
-                return false;
-            }
+            targetImage.AddComponent<GradientBackground>();
+            return true;
         }
     }
 }
