@@ -20,6 +20,7 @@ namespace TLUIToolkit
         private static readonly int prop_GradientType = Shader.PropertyToID("_GRADIENTTYPE");
         private static readonly int prop_GradientAxis = Shader.PropertyToID("_GRADIENTAXIS");
         private static readonly int prop_BorderThickness = Shader.PropertyToID("_BorderThickness");
+        private static readonly int prop_MidPoint = Shader.PropertyToID("_MidPoint");
         static readonly float MAX_BORDER_THICKNESS_IN_SHADER = 0.01f; 
         public float radius = 10f;
         [SerializeField]
@@ -40,6 +41,11 @@ namespace TLUIToolkit
         [EnumToggleButtons]
         private GradientAxis gradientAxis = GradientAxis.X;
 
+        [SerializeField]
+        [OnValueChanged(nameof(Refresh))]
+        [ShowIf(nameof(gradientAxis), GradientAxis.X)]
+        [Range(0, 1)]
+        float midPoint = 0.5f; //This is used for the center gradient type, it is the point where the gradient will be centered. It is between 0 and 1, where 0 is the left side and 1 is the right side of the image.
         [SerializeField]
         [OnValueChanged(nameof(Refresh))]
         [Range(0,1)]
@@ -114,6 +120,7 @@ namespace TLUIToolkit
             material.SetInt(prop_GradientType, (int)gradientType);
             material.SetInt(prop_GradientAxis, (int)gradientAxis);
             material.SetFloat(prop_BorderThickness, borderThickness * MAX_BORDER_THICKNESS_IN_SHADER);
+            material.SetFloat(prop_MidPoint, midPoint);
         }
 
 
