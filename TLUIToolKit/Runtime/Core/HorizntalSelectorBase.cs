@@ -73,13 +73,7 @@ namespace TLUIToolkit
         {
             try
             {
-                ValidateReferences();
-                // Initialize the pure logic class with the initialIndex
-                Selector = new SelectorLogic(initialItemsCount, allowLooping, initialIndex);
-                SubscribeToLogicEvents();
-                InitializeButtons();
-                isInitialized = true;
-                UpdateButtonsInteractibility(); // Initial update based on logic state
+                InitlizeWith(initialItemsCount, initialIndex); // Initialize with the initial values
             }
             catch (Exception ex)
             {
@@ -190,24 +184,27 @@ namespace TLUIToolkit
                 previousBtn.onClick.RemoveListener(OnPreviousButtonClicked);
         }
 
+        bool isSubscribedToLogicEvents = false;
         private void SubscribeToLogicEvents()
         {
-            if (Selector == null) return;
+            if (Selector == null || isSubscribedToLogicEvents) return;
 
             Selector.OnIndexChanged += HandleLogicIndexChanged;
             Selector.OnNext += HandleLogicNext;
             Selector.OnPrevious += HandleLogicPrevious;
             Selector.OnValidationError += HandleLogicValidationError;
+            isSubscribedToLogicEvents=true;
         }
 
         private void UnsubscribeFromLogicEvents()
         {
-            if (Selector == null) return;
+            if (Selector == null|| !isSubscribedToLogicEvents) return;
 
             Selector.OnIndexChanged -= HandleLogicIndexChanged;
             Selector.OnNext -= HandleLogicNext;
             Selector.OnPrevious -= HandleLogicPrevious;
             Selector.OnValidationError -= HandleLogicValidationError;
+            isSubscribedToLogicEvents = false;
         }
 
         #endregion
@@ -273,6 +270,17 @@ namespace TLUIToolkit
 
         #region Public Methods (Exposed from Component, delegate to Logic)
 
+        public void InitlizeWith(int itemsCount , int startIndex)
+        {
+            CleanupButtons();
+            ValidateReferences();
+            // Initialize the pure logic class with the initialIndex
+            Selector = new SelectorLogic(itemsCount, allowLooping, startIndex);
+            SubscribeToLogicEvents();
+            InitializeButtons();
+            isInitialized = true;
+            UpdateButtonsInteractibility(); // Initial update based on logic state
+        }
         [Button("Next Item")]
         [EnableIf("@isInitialized && ItemsCount > 0")] // Using ItemsCount from component for Odin
         public virtual void Next()
