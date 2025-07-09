@@ -9,9 +9,9 @@ namespace TLUIToolkit
     [ExecuteInEditMode]                             //Required to check the OnEnable function
     [DisallowMultipleComponent]                     //You can only have one of these in every object.
     [RequireComponent(typeof(RectTransform))]
-    public class GradientBackground : MonoBehaviour
+    public class ImageWithGradient : MonoBehaviour
     {
-        private static readonly string SHADER_NAME = "Shader Graphs/SH_GradientBackground";
+        private static readonly string SHADER_NAME = $"Shader Graphs/SH_{nameof(ImageWithGradient)}";
         
         private static readonly int Props = Shader.PropertyToID("_WidthHeightRadius");
         private static readonly int prop_OuterUV = Shader.PropertyToID("_OuterUV");
