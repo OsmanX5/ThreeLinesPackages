@@ -14,7 +14,7 @@ namespace TLUIToolkit
     public class PrespectiveLayout : MonoBehaviour
     {
         [SerializeField]
-        float movingTime = 2f;
+        float animationTime = 2f;
 
         [SerializeField]
         [Range(0.1f, 1f)]
@@ -60,7 +60,7 @@ namespace TLUIToolkit
         [ShowInInspector]
         public GameObject CenterObject => transform.GetChild(transform.childCount - 1).gameObject;
 
-        public event Action OnAnimationStart;
+        public event Action<float> OnAnimationStart;
         public event Action<GameObject> OnAnimationEnd;
         private void Awake()
         {
@@ -138,7 +138,7 @@ namespace TLUIToolkit
             if (isAnimating)
                 return;
             isAnimating = true;
-            OnAnimationStart?.Invoke();
+            OnAnimationStart?.Invoke(animationTime);
             var sortedItems = Items.OrderBy(x => x.transform.localPosition.x).ToList();
 
             void MoveItemsInDirection()
@@ -149,7 +149,7 @@ namespace TLUIToolkit
 
                 for (int i = startIndex; i < endIndex; i++)
                 {
-                    sortedItems[i].Move(moveDistance, movingTime);
+                    sortedItems[i].Move(moveDistance, animationTime);
                 }
             }
 
@@ -161,27 +161,27 @@ namespace TLUIToolkit
                     : (MinPosition - 50, MaxPosition + 50, MaxPosition);
 
                 // Move item out of view and fade out
-                cyclingItem.MoveTo(exitPosition, movingTime / 2);
-                cyclingItem.FadeOut(movingTime / 2, 0);
+                cyclingItem.MoveTo(exitPosition, animationTime / 2);
+                cyclingItem.FadeOut(animationTime / 2, 0);
 
-                await Task.Delay((int)(movingTime / 2) * 1000);
+                await Task.Delay((int)(animationTime / 2) * 1000);
 
                 // Reposition and move to final position
                 cyclingItem.transform.localPosition = new(entryPosition, 0, 0);
-                cyclingItem.MoveTo(finalPosition, movingTime / 2);
-                cyclingItem.FadeIn(movingTime / 2);
+                cyclingItem.MoveTo(finalPosition, animationTime / 2);
+                cyclingItem.FadeIn(animationTime / 2);
             }
 
             void FadeInAllItems()
             {
                 foreach (var item in sortedItems)
-                    item.FadeIn(movingTime / 2);
+                    item.FadeIn(animationTime / 2);
             }
 
             MoveItemsInDirection();
             await CycleEndItem();
             FadeInAllItems();
-            await Task.Delay((int)(movingTime / 2) * 1000);
+            await Task.Delay((int)(animationTime / 2) * 1000);
             Items.Add(Items[0]);
             Items.RemoveAt(0);
             isAnimating = false;
