@@ -57,8 +57,8 @@ namespace TLUIToolkit
                 return originalOrder;
             }
         }
-        public GameObject CenterObject =>
-            Items.Count > 0 ? Items[n / 2].gameObject : null;
+        [ShowInInspector]
+        public GameObject CenterObject => transform.GetChild(transform.childCount - 1).gameObject;
 
         public event Action OnAnimationStart;
         public event Action<GameObject> OnAnimationEnd;
