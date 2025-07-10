@@ -109,7 +109,7 @@ namespace TLUIToolkit
             if (Selector != null)
             {
                 Selector.SetItemsCount(initialItemsCount);
-                Selector.SetAllowLooping(allowLooping);
+                Selector.AllowLooping= allowLooping;
                 Selector.SetIndex(initialIndex); // Ensure logic also has the desired initial index
             }
             UpdateButtonsInteractibility(); // Update interactability in editor if values change
@@ -336,7 +336,7 @@ namespace TLUIToolkit
             allowLooping = allow; // Keep the inspector value updated
             if (Selector != null)
             {
-                Selector.SetAllowLooping(allow);
+                Selector.AllowLooping= allow;
                 UpdateButtonsInteractibility(); // Update interactability based on new looping state
             }
             else

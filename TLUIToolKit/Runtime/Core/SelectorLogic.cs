@@ -8,7 +8,7 @@ namespace TLUIToolkit
         // Public Properties (Read-only access to internal state)
         public int CurrentIndex { get; private set; }
         public int ItemsCount { get; private set; }
-        public bool AllowLooping { get; private set; }
+        public bool AllowLooping { get; set; }
 
         // Constructor
         public SelectorLogic(int initialItemsCount = 0, bool allowLooping = false, int initialIndex = 0)
@@ -131,12 +131,6 @@ namespace TLUIToolkit
                 SetIndex(ItemsCount - 1);
             }
         }
-
-        public void SetAllowLooping(bool allow)
-        {
-            AllowLooping = allow;
-        }
-
         // Validation properties (pure logic)
         public bool IsValidIndex(int index) => ItemsCount > 0 && index >= 0 && index < ItemsCount;
         public bool CanGoNext() => ItemsCount > 0 && (AllowLooping || CurrentIndex < ItemsCount - 1);

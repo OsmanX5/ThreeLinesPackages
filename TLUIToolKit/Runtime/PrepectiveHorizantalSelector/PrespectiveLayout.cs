@@ -48,7 +48,17 @@ namespace TLUIToolkit
         int n => Items==null? 0: Items.Count;
 
         bool isAnimating;
+        List<Transform> originalOrder;
 
+        public List<Transform> OriginalOrder
+        {
+            get
+            {
+                return originalOrder;
+            }
+        }
+        public GameObject CenterObject =>
+            Items.Count > 0 ? Items[n / 2].gameObject : null;
         private void Awake()
         {
             Init();
@@ -61,6 +71,7 @@ namespace TLUIToolkit
                 Debug.LogWarning("No child elements found in PrespectiveLayout. Please add PrespectiveLayoutElement components to child objects.");
                 return;
             }
+            originalOrder = transform.GetComponentsInChildren<Transform>().ToList();
             AddPrespectiveComponentToChilds();
             BuildQueue();
             SetElementsPositions();
@@ -167,6 +178,8 @@ namespace TLUIToolkit
             await CycleEndItem();
             FadeInAllItems();
             await Task.Delay((int)(movingTime / 2) * 1000);
+            Items.Add(Items[0]);
+            Items.RemoveAt(0);
             isAnimating = false;
         }
 
