@@ -59,6 +59,9 @@ namespace TLUIToolkit
         }
         public GameObject CenterObject =>
             Items.Count > 0 ? Items[n / 2].gameObject : null;
+
+        public event Action OnAnimationStart;
+        public event Action<GameObject> OnAnimationEnd;
         private void Awake()
         {
             Init();
@@ -135,6 +138,7 @@ namespace TLUIToolkit
             if (isAnimating)
                 return;
             isAnimating = true;
+            OnAnimationStart?.Invoke();
             var sortedItems = Items.OrderBy(x => x.transform.localPosition.x).ToList();
 
             void MoveItemsInDirection()
@@ -181,6 +185,7 @@ namespace TLUIToolkit
             Items.Add(Items[0]);
             Items.RemoveAt(0);
             isAnimating = false;
+            OnAnimationEnd?.Invoke(CenterObject);
         }
 
         [ShowIf("@UnityEngine.Application.isPlaying && !isAnimating")]
