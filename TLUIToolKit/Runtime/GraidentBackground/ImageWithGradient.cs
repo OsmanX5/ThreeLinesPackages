@@ -43,7 +43,7 @@ namespace TLUIToolkit
 
         [SerializeField]
         [OnValueChanged(nameof(Refresh))]
-        [ShowIf(nameof(gradientAxis), GradientAxis.X)]
+        [ShowIf(nameof(gradientType), GradientType.Linear)]
         [Range(0, 1)]
         float midPoint = 0.5f; //This is used for the center gradient type, it is the point where the gradient will be centered. It is between 0 and 1, where 0 is the left side and 1 is the right side of the image.
         [SerializeField]
