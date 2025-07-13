@@ -62,10 +62,7 @@ namespace TLUIToolkit
 
         public event Action<float> OnAnimationStart;
         public event Action<GameObject> OnAnimationEnd;
-        private void Awake()
-        {
-            Init(animationTime);
-        }
+
         [Button(ButtonSizes.Large)]
         public void Init() => Init(animationTime);
         public void Init(float animationTime) {
