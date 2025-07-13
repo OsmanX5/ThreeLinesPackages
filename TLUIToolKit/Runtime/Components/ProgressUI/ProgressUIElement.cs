@@ -142,9 +142,6 @@ namespace TLUIToolkit
         private void StartFillAnimation(UIData.State currentState)
         {
             if (!ValidateFillComponents()) return;
-
-            Debug.Log($"Starting fill animation for {GetDisplayName()} with state {currentState}");
-
             UpdateFillColor(currentState);
             StopCurrentFillAnimation();
 
@@ -202,8 +199,6 @@ namespace TLUIToolkit
         private IEnumerator FillAnimationCoroutine(float duration, float targetFill)
         {
             OnStateFillAnimationStarted?.Invoke();
-            Debug.Log($"Starting fill process for {GetDisplayName()} with target fill {targetFill}");
-
             isFilling = true;
             float elapsedTime = 0f;
             float initialFill = lastLineFill.fillAmount;
@@ -221,7 +216,6 @@ namespace TLUIToolkit
             lastLineFill.fillAmount = targetFill;
             isFilling = false;
 
-            Debug.Log($"Fill process completed for {GetDisplayName()} with final fill {lastLineFill.fillAmount}");
             OnStateFillAnimationCompleted?.Invoke();
         }
         #endregion
