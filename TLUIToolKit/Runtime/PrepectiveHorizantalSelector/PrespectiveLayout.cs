@@ -184,6 +184,7 @@ namespace TLUIToolkit
             await Task.Delay((int)(animationTime / 2) * 1000);
             Items.Add(Items[0]);
             Items.RemoveAt(0);
+            await Task.Delay(200);
             isAnimating = false;
             OnAnimationEnd?.Invoke(CenterObject);
         }
