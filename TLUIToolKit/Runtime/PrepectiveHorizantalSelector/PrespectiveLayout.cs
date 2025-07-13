@@ -228,8 +228,16 @@ namespace TLUIToolkit
                 return;
             }
             isInitialized = false;
-            Items.Clear();
-            originalOrder.Clear();
+            if(Items == null || Items.Count == 0)
+            {
+                Items.Clear();
+                return;
+            }
+            if(originalOrder == null || originalOrder.Count == 0)
+            {
+                originalOrder = transform.GetComponentsInChildren<Transform>().ToList();
+                originalOrder.Clear();
+            }
             foreach (Transform child in transform)
             {
                 if (child.GetComponent<PrespectiveLayoutElement>() == null)
