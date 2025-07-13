@@ -64,16 +64,17 @@ namespace TLUIToolkit
         public event Action<GameObject> OnAnimationEnd;
         private void Awake()
         {
-            Init();
+            Init(animationTime);
         }
 
         [Button(ButtonSizes.Large)]
-        public void Init() {
+        public void Init(float animationTime) {
             if (transform.childCount == 0)
             {
                 Debug.LogWarning("No child elements found in PrespectiveLayout. Please add PrespectiveLayoutElement components to child objects.");
                 return;
             }
+            this.animationTime = animationTime;
             originalOrder = transform.GetComponentsInChildren<Transform>().ToList();
             AddPrespectiveComponentToChilds();
             BuildQueue();
