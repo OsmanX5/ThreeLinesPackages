@@ -66,8 +66,8 @@ namespace TLUIToolkit
         {
             Init(animationTime);
         }
-
         [Button(ButtonSizes.Large)]
+        public void Init() => Init(animationTime);
         public void Init(float animationTime) {
             if (transform.childCount == 0)
             {
