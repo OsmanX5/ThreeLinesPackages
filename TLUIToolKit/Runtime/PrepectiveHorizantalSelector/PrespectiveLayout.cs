@@ -45,6 +45,8 @@ namespace TLUIToolkit
         [ShowInInspector]
         float MinPosition => -MaxPosition;
 
+        [SerializeField]
+        bool intlizeOnAwakeWithChilds;
         int n => Items==null? 0: Items.Count;
 
         bool isAnimating;
@@ -63,6 +65,14 @@ namespace TLUIToolkit
         public event Action<float> OnAnimationStart;
         public event Action<GameObject> OnAnimationEnd;
 
+        bool isInitialized;
+        private void Awake()
+        {
+            if(intlizeOnAwakeWithChilds && transform.childCount > 0)
+            {
+                Init(animationTime);
+            }
+        }
         [Button(ButtonSizes.Large)]
         public void Init() => Init(animationTime);
         public void Init(float animationTime) {
@@ -71,12 +81,18 @@ namespace TLUIToolkit
                 Debug.LogWarning("No child elements found in PrespectiveLayout. Please add PrespectiveLayoutElement components to child objects.");
                 return;
             }
+            if (isInitialized)
+            {
+                Debug.LogWarning("PrespectiveLayout is already initialized. Please reset or reinitialize if needed.");
+                return;
+            }
             this.animationTime = animationTime;
             originalOrder = transform.GetComponentsInChildren<Transform>().ToList();
             AddPrespectiveComponentToChilds();
             BuildQueue();
             SetElementsPositions();
             ReorderLayers();
+            isInitialized =true;
         }
         private void Update()
         {
@@ -204,6 +220,27 @@ namespace TLUIToolkit
         }
 
         int GetLevel(int i) => (i+1) / 2 ;
+        public void Dispose()
+        {
+            if (isAnimating)
+            {
+                Debug.LogWarning("Cannot dispose while animation is in progress.");
+                return;
+            }
+            isInitialized = false;
+            Items.Clear();
+            originalOrder.Clear();
+            foreach (Transform child in transform)
+            {
+                if (child.GetComponent<PrespectiveLayoutElement>() == null)
+                {
+                    Debug.LogWarning($"Child {child.name} does not have PrespectiveLayoutElement component.");
+                    continue;
+                }
+                Destroy(child.GetComponent<PrespectiveLayoutElement>());
+            }
+            Debug.Log("PrespectiveLayout disposed successfully.");
+        }
 
     }
 
