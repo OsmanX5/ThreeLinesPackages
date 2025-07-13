@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace TLUIToolkit
 {
-    public class PerspectiveLayout : MonoBehaviour
+    public class PrespectiveLayout : MonoBehaviour
     {
         #region Configuration
         [FoldoutGroup("Settings")]
