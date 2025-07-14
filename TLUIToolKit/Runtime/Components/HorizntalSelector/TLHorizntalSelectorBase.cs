@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace TLUIToolkit
 {
-    public class HorizontalSelectorBase : MonoBehaviour
+    public class TLHorizontalSelectorBase : MonoBehaviour
     {
         [Title("References")]
         [SerializeField, Required]
@@ -66,7 +66,7 @@ namespace TLUIToolkit
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[{gameObject.name}] Failed to initialize HorizontalSelectorBase: {ex.Message}", this);
+                Debug.LogError($"[{gameObject.name}] Failed to initialize TLHorizontalSelectorBase: {ex.Message}", this);
                 isInitialized = false;
             }
         }
@@ -148,13 +148,15 @@ namespace TLUIToolkit
         {
             if (nextBtn != null)
             {
-                nextBtn.onClick.RemoveAllListeners();
+                if(IsInitialized)
+                    nextBtn.onClick.RemoveListener(OnNextButtonClicked);
                 nextBtn.onClick.AddListener(OnNextButtonClicked);
             }
 
             if (previousBtn != null)
             {
-                previousBtn.onClick.RemoveAllListeners();
+                if (IsInitialized)
+                    previousBtn.onClick.RemoveListener(OnPreviousButtonClicked);
                 previousBtn.onClick.AddListener(OnPreviousButtonClicked);
             }
         }
