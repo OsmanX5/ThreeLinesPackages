@@ -1,4 +1,5 @@
 using Sirenix.OdinInspector;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using ThreeLines.Helpers;
@@ -13,15 +14,23 @@ namespace TLUIToolkit
     [RequireComponent(typeof(RectTransform))]
     public class ImageWithGrayScale : MonoBehaviour
     {
-        private static readonly string SHADER_NAME = "Shader Graphs/SH_ImageWithGrayScale";
+        private static readonly string SHADER_NAME = "TLShaders/SH_ImageWithGrayScale";
 
         private static readonly int prop_GrayScaleLevel = Shader.PropertyToID("_GrayScaleLevel");
-
+        private static readonly int prop_GrayScaleAxis = Shader.PropertyToID("_GrayScaleAxis");
+        private static readonly int prop_GrayScaleDarken = Shader.PropertyToID("_GrayScaleDarken");
         [SerializeField]
         [OnValueChanged(nameof(Refresh))]
         [Range(0,1)]
-        public float grayScaleLevel = 1f;
+        public float grayScaleLevel =1;
+        
+        [SerializeField]
+        [Range(0, 1)]
+        float grayScaleDarken = 0.5f;
 
+        [SerializeField]
+        [EnumToggleButtons]
+        GrayScaleAxis grayScaleAxis = GrayScaleAxis.X; //This is the axis on which the gray scale will be applied. X means horizontal, Y means vertical.
         private Material material;
         private Vector4 outerUV = new Vector4(0, 0, 1, 1);
 
@@ -30,6 +39,7 @@ namespace TLUIToolkit
             get => grayScaleLevel;
             set
             {
+
                 grayScaleLevel = Mathf.Clamp01(value);
                 Refresh();
             }
@@ -95,18 +105,13 @@ namespace TLUIToolkit
         {
             var rect = ((RectTransform)transform).rect;
             material.SetFloat(prop_GrayScaleLevel, grayScaleLevel);
+            material.SetInt(prop_GrayScaleAxis, (int)grayScaleAxis);
+            material.SetFloat(prop_GrayScaleDarken, grayScaleDarken); 
         }
-
-
-        enum GradientAxis
+        enum GrayScaleAxis
         {
-            X,
-            Y,
-        }
-        enum GradientType
-        {
-            Linear,
-            Center
+            X =0,
+            Y =1,
         }
     }
 
