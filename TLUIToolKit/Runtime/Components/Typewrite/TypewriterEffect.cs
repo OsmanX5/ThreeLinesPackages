@@ -14,7 +14,7 @@ namespace TLUIToolkit
 
     [BoxGroup("Settings")]
     [LabelWidth(100)]
-    [SerializeField] private bool startOnAwake = true;
+    [SerializeField] private bool startOnEnable = true;
 
     [BoxGroup("Settings")]
     [LabelWidth(100)]
@@ -48,7 +48,7 @@ namespace TLUIToolkit
     public System.Action OnTypingCompleted;
     public System.Action<char> OnCharacterTyped;
 
-    void Awake()
+    void OnEnable()
     {
         // Get TextMeshPro component
         textComponent = GetComponent<TextMeshProUGUI>();
@@ -63,18 +63,11 @@ namespace TLUIToolkit
 
         // Hide text initially if specified
         if (hideTextOnStart)
-        {
             textComponent.text = "";
-        }
+        if (startOnEnable)
+            StartTyping();
     }
 
-    void Start()
-    {
-        if (startOnAwake)
-        {
-            StartTyping();
-        }
-    }
 
     [ButtonGroup("Controls")]
     [Button("Start Typing", ButtonSizes.Medium)]
