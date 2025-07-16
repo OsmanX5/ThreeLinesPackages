@@ -2,7 +2,6 @@ using System;
 
 namespace TLUIToolkit
 {
-    [Flags]
     public enum TLUIEffectEventType
     {
         None = 0,

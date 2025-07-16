@@ -11,26 +11,12 @@ using UnityEngine.UI;
 namespace TLUIToolkit
 {
     [RequireComponent(typeof(Button))]
-    public class TLUIButtonFeedback : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public class TLUIButtonFeedback : MonoBehaviour
     {
-        [Title("Feedback Settings")]
         [SerializeField]
-        [EnumToggleButtons]
-        TLUIEffectEventType feedbackEvents = TLUIEffectEventType.OnClick | TLUIEffectEventType.OnHover;
+        [InfoBox("Only Supporting OnClick,OnHove,OnEnable,OnDisable")]
+        TLUIFeedback feedback;
 
-
-
-
-        [SerializeField]
-        TLUIEffectFeedbackType feedbackTypes = TLUIEffectFeedbackType.Audio;
-
-        [Title("Custom Audio")]
-        [ToggleLeft]
-        [SerializeField] private bool useCustomSounds = false;
-        [ShowIf("useCustomSounds"), Indent]
-        [SerializeField] private AudioClip customHoverSound;
-        [ShowIf("useCustomSounds"), Indent]
-        [SerializeField] private AudioClip customClickSound;
 
         private Button button;
 
@@ -40,8 +26,6 @@ namespace TLUIToolkit
             button.onClick.AddListener(HandleClick);
         }
 
-        TLUISounds TLUISounds => TLUISounds.Instance;
-
         private void OnDestroy()
         {
             if (button != null)
@@ -50,65 +34,32 @@ namespace TLUIToolkit
             }
         }
 
-        public void OnPointerEnter(PointerEventData eventData) => HandleHover();
-        public void OnPointerExit(PointerEventData eventData) => HandleHoverExit();
-
         private void HandleClick()
         {
-            if (!IsEventEnabled(TLUIEffectEventType.OnClick))
-                return;
-
-            if (IsFeedbackTypeEnabled(TLUIEffectFeedbackType.Audio))
-            {
-                if (useCustomSounds && customClickSound != null)
-                    TLUISounds.PlayCustomSound(customClickSound);
-                else
-                    TLUISounds.PlayClickSound();
-            }
-
+            feedback.OnClickFeedback();
         }
 
         private void HandleHover()
         {
-            if (!IsEventEnabled(TLUIEffectEventType.OnHover))
-                return;
-            
-            if (IsFeedbackTypeEnabled(TLUIEffectFeedbackType.Audio))
-            {
-                if (useCustomSounds && customHoverSound != null)
-                    TLUISounds.PlayCustomSound(customHoverSound);
-                else
-                    TLUISounds.PlayHoverSound();
-            }
-            if (IsFeedbackTypeEnabled(TLUIEffectFeedbackType.XRVibration))
-            {
-                XRHandsVibrator.Instance.VibrateRightHandCommon(XRHandsVibrator.PredfinedVibrations.verySoft);
-            }
+            feedback.OnHoverFeedback();
         }
-
-        private void HandleHoverExit()
+        private void OnEnable()
         {
-            if (!IsEventEnabled(TLUIEffectEventType.OnHoverExit))
-                return;
-
-            // Add hover exit feedback here if needed
-            // TLUISounds.PlayHoverExitSound();
+            feedback.OnShowFeedback();
         }
-
-        protected bool IsEventEnabled(TLUIEffectEventType eventType)
+        private void OnDisable()
         {
-            return (feedbackEvents & eventType) != TLUIEffectEventType.None;
-        }
-        protected bool IsFeedbackTypeEnabled(TLUIEffectFeedbackType feedbackType)
-        {
-            return (feedbackTypes & feedbackType) != TLUIEffectFeedbackType.None;
+            feedback.OnDisableFeedback();
         }
 
         [Title("Testing")]
         [Button] private void TestHover() => HandleHover();
         [Button] private void TestClick() => HandleClick();
-        [Button] private void TestHoverExit() => HandleHoverExit();
 
+        private void OnValidate()
+        {
+            Debug.Log($"TLUIButtonFeedback OnValidate called for {gameObject.name}");
+        }
 #if UNITY_EDITOR
         // Static context menu function
         [MenuItem("CONTEXT/Button/Add TLUIButtonFeedback")]
