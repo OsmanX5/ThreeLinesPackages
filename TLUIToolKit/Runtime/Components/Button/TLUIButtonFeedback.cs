@@ -11,7 +11,7 @@ using UnityEngine.UI;
 namespace TLUIToolkit
 {
     [RequireComponent(typeof(Button))]
-    public class TLUIButtonFeedback : MonoBehaviour
+    public class TLUIButtonFeedback : MonoBehaviour , IPointerEnterHandler
     {
         [SerializeField]
         [InfoBox("Only Supporting OnClick,OnHove,OnEnable,OnDisable")]
@@ -33,16 +33,15 @@ namespace TLUIToolkit
                 button.onClick.RemoveListener(HandleClick);
             }
         }
-
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            feedback.OnHoverFeedback();
+        }
         private void HandleClick()
         {
             feedback.OnClickFeedback();
         }
 
-        private void HandleHover()
-        {
-            feedback.OnHoverFeedback();
-        }
         private void OnEnable()
         {
             feedback.OnShowFeedback();
@@ -53,7 +52,7 @@ namespace TLUIToolkit
         }
 
         [Title("Testing")]
-        [Button] private void TestHover() => HandleHover();
+        [Button] private void TestHover() => feedback.OnHoverFeedback();
         [Button] private void TestClick() => HandleClick();
 
         private void OnValidate()
@@ -117,6 +116,8 @@ namespace TLUIToolkit
             feedback.AddFeedback(new (TLUIEffectEventType.OnClick, TLUIEffectFeedbackType.Audio));
             feedback.AddFeedback(new(TLUIEffectEventType.OnHover, TLUIEffectFeedbackType.XRVibration));
         }
+
+
 #endif
     }
 }
