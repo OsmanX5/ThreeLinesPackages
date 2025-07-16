@@ -115,7 +115,7 @@ namespace TLUIToolkit
         void SetButtonDefaultFeedbacks()
         {
             feedback.AddFeedback(new (TLUIEffectEventType.OnClick, TLUIEffectFeedbackType.Audio));
-            feedback.AddFeedback(new(TLUIEffectEventType.OnHover, TLUIEffectFeedbackType.XRVibration))
+            feedback.AddFeedback(new(TLUIEffectEventType.OnHover, TLUIEffectFeedbackType.XRVibration));
         }
 #endif
     }
