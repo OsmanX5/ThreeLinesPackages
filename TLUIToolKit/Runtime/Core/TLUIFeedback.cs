@@ -153,7 +153,7 @@ namespace TLUIToolkit
             }
         }
 
-        [BoxGroup("Add Feedback")]
+        [TitleGroup("Add Feedback")]
         [Button("Clear All", ButtonSizes.Medium)]
         [GUIColor(0.8f, 0.4f, 0.4f)]
         private void ClearAllFeedbacks()
