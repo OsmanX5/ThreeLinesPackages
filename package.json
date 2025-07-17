@@ -2,11 +2,30 @@
     "name": "com.threelines.packages",
     "version": "25.7.17",
     "displayName": "Three Lines Packages",
-    "description": "Three Lines Core Packages",
+    "description": "A comprehensive Unity UI package featuring advanced color management, sound feedback, visual effects, and custom UI elements including grayscale/gradient image effects, progress bars, and perspective layouts.",
     "unity": "2022.3",
     "author": {
         "name": "3LinesTeam",
         "email": "xr@3lines.com.sa",
         "url": "https://xr@3lines.com.sa"
-    }
+    },
+    "keywords": [
+        "UI",
+        "Interface",
+        "Effects",
+        "Shaders",
+        "Tools",
+        "Progress",
+        "Feedback",
+        "Colors",
+        "Sounds"
+    ],
+    "category": "UI",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/OsmanX5/ThreeLinesPackages.git"
+    },
+    "documentationUrl": "https://xr3lines.atlassian.net/wiki/spaces/GOPs/pages/101449810/TLUIToolkit",
+    "changelogUrl": "https://github.com/OsmanX5/ThreeLinesPackages/blob/main/CHANGELOG.md",
+    "licensesUrl": "https://github.com/OsmanX5/ThreeLinesPackages/blob/main/LICENSE"
 }
