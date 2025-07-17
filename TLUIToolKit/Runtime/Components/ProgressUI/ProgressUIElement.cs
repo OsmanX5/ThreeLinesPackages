@@ -33,10 +33,12 @@ namespace TLUIToolkit
         [SerializeField, Required] private GameObject lastLine;
         [SerializeField, Required] private Image lastLineFill;
 
-        [SerializeField] private Color successColor=>TLUIColors.SuccessGreenColor;
+        [SerializeField] private Color successColor => TLUIColors.SuccessGreenColor;
         [SerializeField] private Color failureColor => TLUIColors.ErrorRedColor;
         [SerializeField] private Color inProgressColor => TLUIColors.WarningYellowColor;
         [SerializeField] private Color notStartedColor = Color.white;
+
+        [SerializeField] UIData currentData;
         #endregion
 
         #region Private Fields
@@ -60,7 +62,7 @@ namespace TLUIToolkit
                 Debug.LogError("UIData is null", this);
                 return;
             }
-
+            currentData = data;
             UpdateTextContent(data);
             UpdateState(data.CurrentState);
             SetLastLineVisibility(!data.IsLast);
@@ -91,7 +93,7 @@ namespace TLUIToolkit
 
         private void UpdateState(UIData.State newState)
         {
-            if (newState == lastState) 
+            if (newState == lastState)
                 return;
 
             Debug.Log($"Updating {GetDisplayName()} to {newState}");
@@ -266,7 +268,7 @@ namespace TLUIToolkit
         }
 #endif
         #endregion
-        
+
         /// <summary>
         /// Data structure for Progress information
         /// </summary>
@@ -274,8 +276,8 @@ namespace TLUIToolkit
         public class UIData
         {
             public string MainText;
-            public string SubText ;
-            public State CurrentState ;
+            public string SubText;
+            public State CurrentState;
 
             public bool IsLast { get; set; } = false;
 

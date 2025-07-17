@@ -25,7 +25,7 @@ namespace TLUIToolkit
         public float radius = 10f;
         [SerializeField]
         [OnValueChanged(nameof(Refresh))]
-        Color mainColor = TLUIColors.PrimeryColor;
+        Color mainColor = TLUIColors.PrimaryColor;
 
         [SerializeField]
         [OnValueChanged(nameof(Refresh))]
