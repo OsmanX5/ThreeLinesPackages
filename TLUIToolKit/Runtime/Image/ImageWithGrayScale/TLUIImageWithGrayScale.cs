@@ -12,9 +12,9 @@ namespace TLUIToolkit
     [ExecuteInEditMode]                             //Required to check the OnEnable function
     [DisallowMultipleComponent]                     //You can only have one of these in every object.
     [RequireComponent(typeof(RectTransform))]
-    public class ImageWithGrayScale : MonoBehaviour
+    public class TLUIImageWithGrayScale : MonoBehaviour
     {
-        private static readonly string SHADER_NAME = "TLShaders/SH_ImageWithGrayScale";
+        private static readonly string SHADER_NAME = $"TLShaders/SH_{nameof(TLUIImageWithGrayScale)}";
 
         private static readonly int prop_GrayScaleLevel = Shader.PropertyToID("_GrayScaleLevel");
         private static readonly int prop_GrayScaleAxis = Shader.PropertyToID("_GrayScaleAxis");

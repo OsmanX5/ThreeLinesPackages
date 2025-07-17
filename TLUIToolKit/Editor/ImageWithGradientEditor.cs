@@ -16,7 +16,7 @@ namespace TLUIToolkit.Editor
                 parentTransform
             );
 
-            imageObject.AddComponent<TLUIToolkit.ImageWithGradient>();
+            imageObject.AddComponent<TLUIToolkit.TLUIImageWithGradient>();
 
             ImageWithEditorUtility.SelectAndMarkDirty(imageObject);
 
@@ -34,9 +34,9 @@ namespace TLUIToolkit.Editor
                 return;
             }
 
-            if (targetImage.gameObject.GetComponent<TLUIToolkit.ImageWithGradient>() == null)
+            if (targetImage.gameObject.GetComponent<TLUIToolkit.TLUIImageWithGradient>() == null)
             {
-                targetImage.gameObject.AddComponent<TLUIToolkit.ImageWithGradient>();
+                targetImage.gameObject.AddComponent<TLUIToolkit.TLUIImageWithGradient>();
                 Debug.Log($"Successfully converted {targetImage.gameObject.name} to gradient background.");
                 EditorUtility.SetDirty(targetImage.gameObject);
             }

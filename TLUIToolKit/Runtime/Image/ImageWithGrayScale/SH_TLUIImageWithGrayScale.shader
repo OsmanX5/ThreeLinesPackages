@@ -1,4 +1,4 @@
-Shader "TLShaders/SH_ImageWithGrayScale"
+Shader "TLShaders/SH_TLUIImageWithGrayScale"
 {
     Properties
     {

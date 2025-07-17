@@ -761,7 +761,7 @@ GameObject:
   - component: {fileID: 782165497046601805}
   - component: {fileID: 1331983931767184273}
   m_Layer: 5
-  m_Name: ProgressUIElement
+  m_Name: TLUIProgressUIElement
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

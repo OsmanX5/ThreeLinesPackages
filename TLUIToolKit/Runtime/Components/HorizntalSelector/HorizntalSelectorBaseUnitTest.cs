@@ -7,7 +7,7 @@ namespace TLUIToolkit.Tests
 {
     public class HorizontalSelectorBaseUnitTest : MonoBehaviour
     {
-        [SerializeField] private TLHorizontalSelectorBase selectorBase;
+        [SerializeField] private TLUIHorizontalSelector selectorBase;
         [SerializeField] private Button nextButton;
         [SerializeField] private Button previousButton;
 
@@ -20,7 +20,7 @@ namespace TLUIToolkit.Tests
 
         private IEnumerator RunTests()
         {
-            TLDebug.LogGreen("--- Starting TLHorizontalSelectorBase Unit Tests ---");
+            TLDebug.LogGreen("--- Starting TLUIHorizontalSelector Unit Tests ---");
 
             // Ensure references are assigned in the inspector
             if (selectorBase == null || nextButton == null || previousButton == null)
@@ -57,7 +57,7 @@ namespace TLUIToolkit.Tests
             yield return TestButtonInteractability();
 
 
-            TLDebug.LogGreen("--- TLHorizontalSelectorBase Unit Tests Completed ---");
+            TLDebug.LogGreen("--- TLUIHorizontalSelector Unit Tests Completed ---");
         }
 
         private IEnumerator TestInitialization()

@@ -17,7 +17,7 @@ namespace TLUIToolkit.Editor
             );
 
             // Add the GrayscaleEffect component
-            imageObject.AddComponent<ImageWithGrayScale>();
+            imageObject.AddComponent<TLUIImageWithGrayScale>();
 
             ImageWithEditorUtility.SelectAndMarkDirty(imageObject);
 
@@ -40,9 +40,9 @@ namespace TLUIToolkit.Editor
             }
 
             // Check if GrayscaleEffect already exists to prevent duplicates
-            if (targetImage.gameObject.GetComponent<ImageWithGrayScale>() == null)
+            if (targetImage.gameObject.GetComponent<TLUIImageWithGrayScale>() == null)
             {
-                targetImage.gameObject.AddComponent<ImageWithGrayScale>();
+                targetImage.gameObject.AddComponent<TLUIImageWithGrayScale>();
                 Debug.Log($"Successfully converted {targetImage.gameObject.name} to grayscale.");
                 EditorUtility.SetDirty(targetImage.gameObject); // Mark the object as dirty to save changes
             }

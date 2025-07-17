@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace TLUIToolkit
 {
-    public class TLHorizontalSelectorBase : MonoBehaviour
+    public class TLUIHorizontalSelector : MonoBehaviour
     {
         [Title("References")]
         [SerializeField, Required]
@@ -66,7 +66,7 @@ namespace TLUIToolkit
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[{gameObject.name}] Failed to initialize TLHorizontalSelectorBase: {ex.Message}", this);
+                Debug.LogError($"[{gameObject.name}] Failed to initialize TLUIHorizontalSelector: {ex.Message}", this);
                 isInitialized = false;
             }
         }

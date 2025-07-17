@@ -9,7 +9,7 @@ using UnityEngine.UI;
 namespace TLUIToolkit
 {
     [ExecuteInEditMode]
-    public class PrespectiveLayoutElement : MonoBehaviour
+    public class TLUIPrespectiveLayoutElement : MonoBehaviour
     {
         [ShowInInspector]
         float totalWidth=>transform.parent.GetComponent<RectTransform>().rect.size.x;

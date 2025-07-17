@@ -9,17 +9,16 @@ namespace TLUIToolkit
     /// <summary>
     /// Simple UI controller for managing multiple task UI elements
     /// </summary>
-    public class ProgressUI : MonoBehaviour
+    public class TLUIProgressUI : MonoBehaviour
     {
         #region Events
-        public event Action<int, ProgressUIElement.UIData.State> OnProgressStateChanged;
-        public event Action<int,ProgressUIElement> OnProgressElementAdded;
+        public event Action<int, TLUIProgressUIElement.UIData.State> OnProgressStateChanged;
+        public event Action<int,TLUIProgressUIElement> OnProgressElementAdded;
         public event Action OnProgressCleared;
-        public event Action<List<ProgressUIElement>> OnProgressElementsInitlized;
+        public event Action<List<TLUIProgressUIElement>> OnProgressElementsInitlized;
 
         #endregion
 
-        
         #region Serialized Fields
         
         [SerializeField]
@@ -27,16 +26,17 @@ namespace TLUIToolkit
         private Transform progressUIElementsParent;
         
         [SerializeField, AssetsOnly]
-        [Tooltip("Prefab for the progress UI element. This should have a ProgressUIElement component attached.")]
+        [Tooltip("Prefab for the progress UI element. This should have a TLUIProgressUIElement component attached.")]
         private GameObject progressUIElementPrefab;
         
         [SerializeField] 
-        private List<ProgressUIElement.UIData> progressUIElementsData = new();
+        private List<TLUIProgressUIElement.UIData> progressUIElementsData = new();
 
-        List<ProgressUIElement> progressUIElementsObjects = new();
+        List<TLUIProgressUIElement> progressUIElementsObjects = new();
 
-        public List<ProgressUIElement> ProgressUIElementsGameObjects => progressUIElementsObjects;
+        public List<TLUIProgressUIElement> ProgressUIElementsGameObjects => progressUIElementsObjects;
         #endregion
+        
         private void Start()
         {
             InitWithLocalUIElements();
@@ -44,11 +44,12 @@ namespace TLUIToolkit
         [Button(ButtonSizes.Large)]
         public void InitWithLocalUIElements()
         {
-            List<ProgressUIElement.UIData> localUIData = new(progressUIElementsData);
+            List<TLUIProgressUIElement.UIData> localUIData = new(progressUIElementsData);
             InitWithUIData(localUIData,resetToNotStarted:false);
         }
+
         #region Public Methods
-        public List<ProgressUIElement> InitWithUIData(List<ProgressUIElement.UIData> uiDataList,bool resetToNotStarted = false)
+        public List<TLUIProgressUIElement> InitWithUIData(List<TLUIProgressUIElement.UIData> uiDataList,bool resetToNotStarted = false)
         {
             if(uiDataList == null || uiDataList.Count == 0)
             {
@@ -72,7 +73,7 @@ namespace TLUIToolkit
             OnProgressCleared?.Invoke();
         }
 
-        public ProgressUIElement AddUIDataElement(ProgressUIElement.UIData uiElementData)
+        public TLUIProgressUIElement AddUIDataElement(TLUIProgressUIElement.UIData uiElementData)
         {
             // Update previous last task
             if (progressUIElementsData.Count > 0)
@@ -84,7 +85,7 @@ namespace TLUIToolkit
             progressUIElementsData.Add(uiElementData);
 
             var taskUIElement = Instantiate(progressUIElementPrefab, progressUIElementsParent);
-            var progressUIElement = taskUIElement.GetComponent<ProgressUIElement>();
+            var progressUIElement = taskUIElement.GetComponent<TLUIProgressUIElement>();
             if (progressUIElement != null)
             {
                 progressUIElement.SetData(uiElementData);
@@ -101,7 +102,7 @@ namespace TLUIToolkit
         }
 
         [Button]
-        public void UpdateTaskState(int index, ProgressUIElement.UIData.State newState)
+        public void UpdateTaskState(int index, TLUIProgressUIElement.UIData.State newState)
         {
             if (index < 0 || index >= progressUIElementsData.Count)
             {
@@ -113,7 +114,7 @@ namespace TLUIToolkit
             progressUIElementsData[index].CurrentState = newState;
 
             Transform child = progressUIElementsParent.GetChild(index);
-            ProgressUIElement taskUI = child.GetComponent<ProgressUIElement>();
+            TLUIProgressUIElement taskUI = child.GetComponent<TLUIProgressUIElement>();
             if (taskUI != null)
             {
                 taskUI.SetData(progressUIElementsData[index]);
@@ -128,14 +129,14 @@ namespace TLUIToolkit
         private void CreateProgressUI(bool resetToNotStarted)
         {
             DestroyAllChildren();
-            progressUIElementsObjects = new List<ProgressUIElement>();
+            progressUIElementsObjects = new List<TLUIProgressUIElement>();
             for (int i = 0; i < progressUIElementsData.Count; i++)
             {
-                ProgressUIElement.UIData taskData = progressUIElementsData[i];
+                TLUIProgressUIElement.UIData taskData = progressUIElementsData[i];
                 if(resetToNotStarted)
-                    taskData.CurrentState = ProgressUIElement.UIData.State.NotStarted; // Reset state for new UI
+                    taskData.CurrentState = TLUIProgressUIElement.UIData.State.NotStarted; // Reset state for new UI
                 var taskUIElement = Instantiate(progressUIElementPrefab, progressUIElementsParent);
-                var taskUI = taskUIElement.GetComponent<ProgressUIElement>();
+                var taskUI = taskUIElement.GetComponent<TLUIProgressUIElement>();
                 taskData.IsLast = i == progressUIElementsData.Count - 1; // Set last element
 
                 if (taskUI != null)
@@ -152,7 +153,7 @@ namespace TLUIToolkit
                 return;
 
             Transform child = progressUIElementsParent.GetChild(index);
-            ProgressUIElement taskUI = child.GetComponent<ProgressUIElement>();
+            TLUIProgressUIElement taskUI = child.GetComponent<TLUIProgressUIElement>();
             if (taskUI != null)
             {
                 taskUI.SetData(progressUIElementsData[index]);
@@ -189,10 +190,10 @@ namespace TLUIToolkit
         [Button("Add Test Task")]
         void AddProgressUIElement()
         {
-            var testTask = new ProgressUIElement.UIData(
+            var testTask = new TLUIProgressUIElement.UIData(
                 $"Test Task {progressUIElementsData.Count + 1}",
                 "Test description",
-                ProgressUIElement.UIData.State.NotStarted
+                TLUIProgressUIElement.UIData.State.NotStarted
             );
             AddUIDataElement(testTask);
         }
@@ -209,10 +210,10 @@ namespace TLUIToolkit
         private IEnumerator TestStatesCoroutine()
         {
             var states = new[] {
-                ProgressUIElement.UIData.State.InProgress,
-                ProgressUIElement.UIData.State.Completed,
-                ProgressUIElement.UIData.State.Failed,
-                ProgressUIElement.UIData.State.NotStarted
+                TLUIProgressUIElement.UIData.State.InProgress,
+                TLUIProgressUIElement.UIData.State.Completed,
+                TLUIProgressUIElement.UIData.State.Failed,
+                TLUIProgressUIElement.UIData.State.NotStarted
             };
 
             for (int i = 0; i < progressUIElementsData.Count; i++)

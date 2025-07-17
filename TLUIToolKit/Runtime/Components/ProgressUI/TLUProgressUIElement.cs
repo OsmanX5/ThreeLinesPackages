@@ -11,7 +11,7 @@ namespace TLUIToolkit
     /// <summary>
     /// UI element for displaying progress with visual states and animations
     /// </summary>
-    public class ProgressUIElement : MonoBehaviour
+    public class TLUIProgressUIElement : MonoBehaviour
     {
         #region Events
         public event Action<UIData.State> OnStateChanged;
@@ -158,7 +158,7 @@ namespace TLUIToolkit
         {
             if (lastLineFill == null)
             {
-                Debug.LogWarning("Last Line Fill is not assigned in ProgressUIElement", this);
+                Debug.LogWarning("Last Line Fill is not assigned in TLUIProgressUIElement", this);
                 return false;
             }
             return true;

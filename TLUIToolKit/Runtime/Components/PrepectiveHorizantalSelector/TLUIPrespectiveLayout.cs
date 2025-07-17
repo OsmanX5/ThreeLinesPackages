@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace TLUIToolkit
 {
-    public class PrespectiveLayout : MonoBehaviour
+    public class TLUIPrespectiveLayout : MonoBehaviour
     {
         #region Configuration
         [FoldoutGroup("Settings")]
@@ -21,7 +21,7 @@ namespace TLUIToolkit
         #region Runtime Data
         [FoldoutGroup("Runtime Info", false)]
         [ShowInInspector, ReadOnly]
-        private List<PrespectiveLayoutElement> items = new List<PrespectiveLayoutElement>();
+        private List<TLUIPrespectiveLayoutElement> items = new List<TLUIPrespectiveLayoutElement>();
 
         [FoldoutGroup("Runtime Info")]
         [ShowInInspector, ReadOnly]
@@ -165,9 +165,9 @@ namespace TLUIToolkit
         {
             foreach (Transform child in transform)
             {
-                if (child.GetComponent<PrespectiveLayoutElement>() == null)
+                if (child.GetComponent<TLUIPrespectiveLayoutElement>() == null)
                 {
-                    child.gameObject.AddComponent<PrespectiveLayoutElement>();
+                    child.gameObject.AddComponent<TLUIPrespectiveLayoutElement>();
                 }
             }
         }
@@ -178,10 +178,10 @@ namespace TLUIToolkit
 
             foreach (Transform child in transform)
             {
-                var element = child.GetComponent<PrespectiveLayoutElement>();
+                var element = child.GetComponent<TLUIPrespectiveLayoutElement>();
                 if (element == null)
                 {
-                    Debug.LogWarning($"Child {child.name} missing PrespectiveLayoutElement component.");
+                    Debug.LogWarning($"Child {child.name} missing TLUIPrespectiveLayoutElement component.");
                     continue;
                 }
 
@@ -236,7 +236,7 @@ namespace TLUIToolkit
             OnAnimationEnd?.Invoke(CenterObject);
         }
 
-        private Task MoveItemsInDirection(List<PrespectiveLayoutElement> sortedItems, AnimationDirection direction)
+        private Task MoveItemsInDirection(List<TLUIPrespectiveLayoutElement> sortedItems, AnimationDirection direction)
         {
             var moveDistance = DeltaPosition * (int)direction;
             var startIndex = direction == AnimationDirection.Right ? 0 : 1;
@@ -250,7 +250,7 @@ namespace TLUIToolkit
             return Task.CompletedTask;
         }
 
-        private async Task CycleEndItem(List<PrespectiveLayoutElement> sortedItems, AnimationDirection direction)
+        private async Task CycleEndItem(List<TLUIPrespectiveLayoutElement> sortedItems, AnimationDirection direction)
         {
             var cyclingItem = direction == AnimationDirection.Right
                 ? sortedItems[ItemCount - 1]
@@ -280,7 +280,7 @@ namespace TLUIToolkit
                 : (MinPosition - offset, MaxPosition + offset, MaxPosition);
         }
 
-        private void FadeInAllItems(List<PrespectiveLayoutElement> sortedItems)
+        private void FadeInAllItems(List<TLUIPrespectiveLayoutElement> sortedItems)
         {
             var halfDuration = animationSettings.duration / 2;
             foreach (var item in sortedItems)
@@ -322,7 +322,7 @@ namespace TLUIToolkit
         {
             foreach (Transform child in transform)
             {
-                var element = child.GetComponent<PrespectiveLayoutElement>();
+                var element = child.GetComponent<TLUIPrespectiveLayoutElement>();
                 if (element != null)
                 {
                     DestroyImmediate(element);
