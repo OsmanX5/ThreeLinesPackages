@@ -4,6 +4,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Scripting;
 
 namespace TLUIToolkit
 {
@@ -38,7 +39,7 @@ namespace TLUIToolkit
         [SerializeField] private Color inProgressColor => TLUIColors.WarningYellowColor;
         [SerializeField] private Color notStartedColor = Color.white;
 
-        [SerializeField] UIData currentData;
+        [SerializeField] UIData currentData = new();
         #endregion
 
         #region Private Fields
@@ -273,6 +274,7 @@ namespace TLUIToolkit
         /// Data structure for Progress information
         /// </summary>
         [Serializable]
+        [Preserve]
         public class UIData
         {
             public string MainText;
